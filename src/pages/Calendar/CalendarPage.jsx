@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   EVENT_THEMES,
+  WEEKDAY_LABELS,
   buildMockCalendarData,
   buildMonthGrid,
   combineDateAndTime,
@@ -19,17 +20,19 @@ import {
   toDateKey,
   toInputDateValue,
   toTimeInputValue,
-  WEEKDAY_LABELS,
-} from './calendarData';
+} from "./calendarData";
 import {
   EventDetailDialog,
   EventFormDialog,
   TodoFormDialog,
-} from './CalendarDialogs';
+} from "./CalendarDialogs";
 
 function PlusIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[2]">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current stroke-[2]"
+    >
       <path d="M12 5v14" />
       <path d="M5 12h14" />
     </svg>
@@ -38,7 +41,10 @@ function PlusIcon() {
 
 function ChevronLeftIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[2]">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current stroke-[2]"
+    >
       <path d="m14.5 5.5-6 6 6 6" />
     </svg>
   );
@@ -46,7 +52,10 @@ function ChevronLeftIcon() {
 
 function ChevronRightIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[2]">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current stroke-[2]"
+    >
       <path d="m9.5 5.5 6 6-6 6" />
     </svg>
   );
@@ -54,7 +63,10 @@ function ChevronRightIcon() {
 
 function PencilIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
+    >
       <path d="m4.75 16.75 8.8-8.8 3.5 3.5-8.8 8.8-3.9.4.4-3.9Z" />
       <path d="m12.75 8.75 2.25-2.25a1.6 1.6 0 0 1 2.25 0l.25.25a1.6 1.6 0 0 1 0 2.25l-2.25 2.25" />
     </svg>
@@ -63,24 +75,27 @@ function PencilIcon() {
 
 function CheckCircleIcon({ completed = false }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-7 w-7 fill-none stroke-current stroke-[1.8]">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-7 w-7 fill-none stroke-current stroke-[1.8]"
+    >
       <circle cx="12" cy="12" r="8.5" />
       {completed ? <path d="m8.7 12 2.1 2.2 4.7-4.9" /> : null}
     </svg>
   );
 }
 
-function ActionButton({ children, tone = 'primary', ...props }) {
+function ActionButton({ children, tone = "primary", ...props }) {
   const toneClassName =
-    tone === 'secondary'
-      ? 'bg-[#4f9f91] text-white shadow-[0_18px_35px_-22px_rgba(16,185,129,0.8)] hover:bg-[#458d81]'
-      : 'bg-lime-400 text-white shadow-[0_18px_35px_-22px_rgba(132,204,22,0.95)] hover:bg-lime-500';
+    tone === "secondary"
+      ? "bg-[#3CC4AD] text-white shadow-[0_18px_35px_-22px_rgba(60,196,173,0.95)] hover:bg-[#2D9A87]"
+      : "bg-[#95D34F] text-white shadow-[0_18px_35px_-22px_rgba(149,211,79,0.95)] hover:bg-[#6FA839]";
 
   return (
     <button
       type="button"
       {...props}
-      className={`inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${toneClassName}`}
+      className={`inline-flex items-center gap-2 rounded-[22px] px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${toneClassName}`}
     >
       {children}
     </button>
@@ -92,18 +107,18 @@ function getEventSegmentClass(day, event) {
   const isEnd = isSameDay(day, event.end);
 
   if (isStart && isEnd) {
-    return 'rounded-full';
+    return "rounded-full";
   }
 
   if (isStart) {
-    return 'rounded-l-full rounded-r-md';
+    return "rounded-l-full rounded-r-md";
   }
 
   if (isEnd) {
-    return 'rounded-l-md rounded-r-full';
+    return "rounded-l-md rounded-r-full";
   }
 
-  return 'rounded-md';
+  return "rounded-md";
 }
 
 function moveMonth(date, amount) {
@@ -136,7 +151,9 @@ function sortEventsByAnchor(events, anchorDate) {
 }
 
 function sortTodosByDate(todos) {
-  return [...todos].sort((firstTodo, secondTodo) => firstTodo.date - secondTodo.date);
+  return [...todos].sort(
+    (firstTodo, secondTodo) => firstTodo.date - secondTodo.date,
+  );
 }
 
 function buildTodoFormInitialValues(selectedDate, todo) {
@@ -145,17 +162,17 @@ function buildTodoFormInitialValues(selectedDate, todo) {
       title: todo.title,
       priority: todo.priority,
       date: toInputDateValue(todo.date),
-      description: todo.description ?? '',
-      project: todo.project ?? '선택하지 않음',
+      description: todo.description ?? "",
+      project: todo.project ?? "선택하지 않음",
     };
   }
 
   return {
-    title: '',
-    priority: 'medium',
+    title: "",
+    priority: "medium",
     date: toInputDateValue(selectedDate),
-    description: '',
-    project: '선택하지 않음',
+    description: "",
+    project: "선택하지 않음",
   };
 }
 
@@ -167,27 +184,31 @@ function buildEventFormInitialValues(selectedDate, event) {
       startTime: toTimeInputValue(event.start),
       endTime: toTimeInputValue(event.end),
       type: event.type,
-      location: event.location ?? '',
-      description: event.description ?? '',
-      project: event.project ?? '선택하지 않음',
+      color: event.color,
+      location: event.location ?? "",
+      description: event.description ?? "",
+      project: event.project ?? "선택하지 않음",
     };
   }
 
   return {
-    title: '',
+    title: "",
     date: toInputDateValue(selectedDate),
-    startTime: '14:00',
-    endTime: '15:00',
-    type: 'meeting',
-    location: '',
-    description: '',
-    project: '선택하지 않음',
+    startTime: "14:00",
+    endTime: "15:00",
+    type: "meeting",
+    color: getEventColorByType("meeting"),
+    location: "",
+    description: "",
+    project: "선택하지 않음",
   };
 }
 
 function CalendarPage() {
   const today = useMemo(() => startOfDay(new Date()), []);
-  const [calendarState, setCalendarState] = useState(() => buildMockCalendarData(today));
+  const [calendarState, setCalendarState] = useState(() =>
+    buildMockCalendarData(today),
+  );
   const [selectedDate, setSelectedDate] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(today));
   const [todoDialog, setTodoDialog] = useState(null);
@@ -196,7 +217,10 @@ function CalendarPage() {
 
   const { events, todos } = calendarState;
 
-  const calendarDays = useMemo(() => buildMonthGrid(currentMonth), [currentMonth]);
+  const calendarDays = useMemo(
+    () => buildMonthGrid(currentMonth),
+    [currentMonth],
+  );
 
   const eventsByDate = useMemo(() => {
     const map = new Map();
@@ -208,7 +232,11 @@ function CalendarPage() {
       for (
         let cursor = startDate;
         cursor.getTime() <= endDate.getTime();
-        cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 1)
+        cursor = new Date(
+          cursor.getFullYear(),
+          cursor.getMonth(),
+          cursor.getDate() + 1,
+        )
       ) {
         const dateKey = toDateKey(cursor);
         const dateEvents = map.get(dateKey) ?? [];
@@ -239,24 +267,14 @@ function CalendarPage() {
         (event) =>
           isSameMonth(event.start, currentMonth) ||
           isSameMonth(event.end, currentMonth) ||
-          isWithinRange(currentMonth, event.start, event.end)
+          isWithinRange(currentMonth, event.start, event.end),
       ),
-    [currentMonth, events]
+    [currentMonth, events],
   );
 
   const monthTodos = useMemo(
     () => todos.filter((todo) => isSameMonth(todo.date, currentMonth)),
-    [currentMonth, todos]
-  );
-
-  const selectedDateEvents = useMemo(
-    () => eventsByDate.get(toDateKey(selectedDate)) ?? [],
-    [eventsByDate, selectedDate]
-  );
-
-  const selectedDateTodos = useMemo(
-    () => todosByDate.get(toDateKey(selectedDate)) ?? [],
-    [selectedDate, todosByDate]
+    [currentMonth, todos],
   );
 
   const selectedUpcomingEvents = useMemo(() => {
@@ -264,7 +282,7 @@ function CalendarPage() {
 
     return sortEventsByAnchor(
       events.filter((event) => startOfDay(event.end).getTime() >= anchorTime),
-      selectedDate
+      selectedDate,
     ).slice(0, 4);
   }, [events, selectedDate]);
 
@@ -273,8 +291,9 @@ function CalendarPage() {
 
     return sortTodosByDate(
       todos.filter(
-        (todo) => !todo.completed && startOfDay(todo.date).getTime() >= anchorTime
-      )
+        (todo) =>
+          !todo.completed && startOfDay(todo.date).getTime() >= anchorTime,
+      ),
     );
   }, [selectedDate, todos]);
 
@@ -283,28 +302,29 @@ function CalendarPage() {
       [...todos]
         .filter((todo) => todo.completed)
         .sort((firstTodo, secondTodo) => {
-          const firstTime = firstTodo.completedAt?.getTime() ?? firstTodo.date.getTime();
+          const firstTime =
+            firstTodo.completedAt?.getTime() ?? firstTodo.date.getTime();
           const secondTime =
             secondTodo.completedAt?.getTime() ?? secondTodo.date.getTime();
 
           return secondTime - firstTime;
         }),
-    [todos]
+    [todos],
   );
 
   const selectedEvent =
     detailEventId !== null
-      ? events.find((event) => event.id === detailEventId) ?? null
+      ? (events.find((event) => event.id === detailEventId) ?? null)
       : null;
 
   const editingTodo =
     todoDialog?.todoId != null
-      ? todos.find((todo) => todo.id === todoDialog.todoId) ?? null
+      ? (todos.find((todo) => todo.id === todoDialog.todoId) ?? null)
       : null;
 
   const editingEvent =
     eventDialog?.eventId != null
-      ? events.find((event) => event.id === eventDialog.eventId) ?? null
+      ? (events.find((event) => event.id === eventDialog.eventId) ?? null)
       : null;
 
   const selectDate = (day) => {
@@ -349,7 +369,7 @@ function CalendarPage() {
         ? startOfDay(new Date(`${formValues.date}T00:00:00`))
         : selectedDate;
 
-      if (todoDialog?.mode === 'edit' && editingTodo) {
+      if (todoDialog?.mode === "edit" && editingTodo) {
         return {
           ...currentState,
           todos: currentState.todos.map((todo) =>
@@ -362,7 +382,7 @@ function CalendarPage() {
                   description: formValues.description,
                   project: formValues.project,
                 }
-              : todo
+              : todo,
           ),
         };
       }
@@ -390,14 +410,17 @@ function CalendarPage() {
 
   const handleSubmitEvent = (formValues) => {
     setCalendarState((currentState) => {
-      const startDate = combineDateAndTime(formValues.date, formValues.startTime);
+      const startDate = combineDateAndTime(
+        formValues.date,
+        formValues.startTime,
+      );
       let endDate = combineDateAndTime(formValues.date, formValues.endTime);
 
       if (endDate.getTime() <= startDate.getTime()) {
         endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
       }
 
-      if (eventDialog?.mode === 'edit' && editingEvent) {
+      if (eventDialog?.mode === "edit" && editingEvent) {
         return {
           ...currentState,
           events: currentState.events.map((event) =>
@@ -408,12 +431,12 @@ function CalendarPage() {
                   start: startDate,
                   end: endDate,
                   type: formValues.type,
+                  color: formValues.color,
                   location: formValues.location,
                   description: formValues.description,
                   project: formValues.project,
-                  color: getEventColorByType(formValues.type),
                 }
-              : event
+              : event,
           ),
         };
       }
@@ -428,10 +451,10 @@ function CalendarPage() {
             start: startDate,
             end: endDate,
             type: formValues.type,
+            color: formValues.color,
             location: formValues.location,
             description: formValues.description,
             project: formValues.project,
-            color: getEventColorByType(formValues.type),
           },
         ],
       };
@@ -449,15 +472,15 @@ function CalendarPage() {
   };
 
   const openCreateTodoDialog = () => {
-    setTodoDialog({ mode: 'create', todoId: null });
+    setTodoDialog({ mode: "create", todoId: null });
   };
 
   const openCreateEventDialog = () => {
-    setEventDialog({ mode: 'create', eventId: null });
+    setEventDialog({ mode: "create", eventId: null });
   };
 
   const openEditTodoDialog = (todo) => {
-    setTodoDialog({ mode: 'edit', todoId: todo.id });
+    setTodoDialog({ mode: "edit", todoId: todo.id });
   };
 
   const openEventDetailDialog = (event) => {
@@ -466,7 +489,7 @@ function CalendarPage() {
 
   const openEventEditDialog = (event) => {
     setDetailEventId(null);
-    setEventDialog({ mode: 'edit', eventId: event.id });
+    setEventDialog({ mode: "edit", eventId: event.id });
   };
 
   return (
@@ -477,19 +500,14 @@ function CalendarPage() {
             <h1 className="text-4xl font-black tracking-tight text-slate-900">
               캘린더
             </h1>
-            <p className="mt-3 text-lg text-slate-400">
-              일정과 할 일을 한곳에서 관리하세요
-            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <ActionButton tone="secondary" onClick={openCreateTodoDialog}>
-              <PlusIcon />
-              새 할 일
+              <PlusIcon />새 할 일
             </ActionButton>
             <ActionButton onClick={openCreateEventDialog}>
-              <PlusIcon />
-              새 일정
+              <PlusIcon />새 일정
             </ActionButton>
           </div>
         </div>
@@ -502,7 +520,8 @@ function CalendarPage() {
                   {formatMonthTitle(currentMonth)}
                 </h2>
                 <p className="mt-2 text-sm text-slate-400">
-                  이번 달 일정 {monthEvents.length}개 · 할 일 {monthTodos.length}개
+                  이번 달 일정 {monthEvents.length}개 · 할 일{" "}
+                  {monthTodos.length}개
                 </p>
               </div>
 
@@ -510,14 +529,14 @@ function CalendarPage() {
                 <button
                   type="button"
                   onClick={goToToday}
-                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 transition hover:border-lime-300 hover:text-slate-900"
+                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 transition hover:border-[#95D34F] hover:text-slate-900"
                 >
                   오늘
                 </button>
                 <button
                   type="button"
                   onClick={() => changeMonth(-1)}
-                  className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-lime-300 hover:text-slate-900"
+                  className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-[#95D34F] hover:text-slate-900"
                   aria-label="이전 달"
                 >
                   <ChevronLeftIcon />
@@ -525,7 +544,7 @@ function CalendarPage() {
                 <button
                   type="button"
                   onClick={() => changeMonth(1)}
-                  className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-lime-300 hover:text-slate-900"
+                  className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-[#95D34F] hover:text-slate-900"
                   aria-label="다음 달"
                 >
                   <ChevronRightIcon />
@@ -533,25 +552,15 @@ function CalendarPage() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-[24px] border border-slate-100 bg-slate-50 px-5 py-4">
-              <p className="text-sm font-semibold text-slate-500">선택한 날짜</p>
-              <p className="mt-2 text-xl font-bold text-slate-900">
-                {formatReadableDate(selectedDate)}
-              </p>
-              <p className="mt-2 text-sm text-slate-400">
-                당일 일정 {selectedDateEvents.length}개 · 당일 할 일 {selectedDateTodos.length}개
-              </p>
-            </div>
-
             <div className="mt-6 overflow-hidden rounded-[28px] border border-slate-200 bg-slate-200">
               <div className="grid grid-cols-7 gap-px bg-slate-200">
                 {WEEKDAY_LABELS.map((label, index) => {
                   const textColorClassName =
                     index === 0
-                      ? 'text-rose-400'
+                      ? "text-rose-400"
                       : index === 6
-                        ? 'text-lime-500'
-                        : 'text-slate-400';
+                        ? "text-lime-500"
+                        : "text-slate-400";
 
                   return (
                     <div
@@ -568,7 +577,10 @@ function CalendarPage() {
                   const dayEvents = eventsByDate.get(dateKey) ?? [];
                   const dayTodos = todosByDate.get(dateKey) ?? [];
                   const visibleEvents = dayEvents.slice(0, 2);
-                  const hiddenEventCount = Math.max(dayEvents.length - visibleEvents.length, 0);
+                  const hiddenEventCount = Math.max(
+                    dayEvents.length - visibleEvents.length,
+                    0,
+                  );
                   const isToday = isSameDay(day, today);
                   const isSelected = isSameDay(day, selectedDate);
                   const isCurrentMonth = isSameMonth(day, currentMonth);
@@ -580,29 +592,29 @@ function CalendarPage() {
                       tabIndex={0}
                       onClick={() => selectDate(day)}
                       onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
+                        if (event.key === "Enter" || event.key === " ") {
                           event.preventDefault();
                           selectDate(day);
                         }
                       }}
                       className={`min-h-[140px] bg-white px-3 py-3 text-left align-top transition outline-none sm:min-h-[154px] ${
-                        isCurrentMonth ? '' : 'bg-slate-50/70 text-slate-300'
+                        isCurrentMonth ? "" : "bg-slate-50/70 text-slate-300"
                       } ${
                         isSelected
-                          ? 'ring-2 ring-inset ring-[#74c7b8]'
-                          : 'hover:bg-slate-50'
+                          ? "ring-2 ring-inset ring-[#6DD9C7]"
+                          : "hover:bg-slate-50"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <span
                           className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ${
                             isSelected
-                              ? 'bg-[#74c7b8] text-white'
+                              ? "bg-[#3CC4AD] text-white"
                               : isToday
-                                ? 'bg-lime-400 text-white'
+                                ? "bg-[#95D34F] text-white"
                                 : isCurrentMonth
-                                  ? 'text-slate-700'
-                                  : 'text-slate-300'
+                                  ? "text-slate-700"
+                                  : "text-slate-300"
                           }`}
                         >
                           {day.getDate()}
@@ -617,23 +629,24 @@ function CalendarPage() {
 
                       <div className="mt-3 space-y-1.5">
                         {visibleEvents.map((event) => {
-                          const theme = EVENT_THEMES[event.color] ?? EVENT_THEMES.lime;
+                          const theme =
+                            EVENT_THEMES[event.color] ?? EVENT_THEMES.primary;
 
                           return (
-                          <button
-                            key={`${event.id}-${dateKey}`}
-                            type="button"
-                            onClick={(eventClick) => {
-                              eventClick.stopPropagation();
-                              selectDate(day);
-                              openEventDetailDialog(event);
-                            }}
-                            className={`truncate border px-2 py-1 text-[11px] font-semibold ${theme.chip} ${getEventSegmentClass(day, event)}`}
-                          >
-                            {event.title}
-                          </button>
-                        );
-                      })}
+                            <button
+                              key={`${event.id}-${dateKey}`}
+                              type="button"
+                              onClick={(eventClick) => {
+                                eventClick.stopPropagation();
+                                selectDate(day);
+                                openEventDetailDialog(event);
+                              }}
+                              className={`truncate border px-2 py-1 text-[11px] font-semibold ${theme.chip} ${getEventSegmentClass(day, event)}`}
+                            >
+                              {event.title}
+                            </button>
+                          );
+                        })}
 
                         {hiddenEventCount > 0 ? (
                           <p className="truncate px-1 text-[11px] font-medium text-slate-400">
@@ -667,7 +680,8 @@ function CalendarPage() {
               <div className="mt-5 space-y-4">
                 {selectedUpcomingEvents.length > 0 ? (
                   selectedUpcomingEvents.map((event) => {
-                    const theme = EVENT_THEMES[event.color] ?? EVENT_THEMES.lime;
+                    const theme =
+                      EVENT_THEMES[event.color] ?? EVENT_THEMES.primary;
 
                     return (
                       <button
@@ -677,7 +691,9 @@ function CalendarPage() {
                         className={`block w-full rounded-[24px] border border-slate-100 p-5 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${theme.card}`}
                       >
                         <div className="flex items-start gap-4">
-                          <span className={`mt-2 h-4 w-4 rounded-full ${theme.dot}`} />
+                          <span
+                            className={`mt-2 h-4 w-4 rounded-full ${theme.dot}`}
+                          />
                           <div className="min-w-0">
                             <h3 className="truncate text-xl font-semibold text-slate-900">
                               {event.title}
@@ -740,7 +756,7 @@ function CalendarPage() {
                       <button
                         type="button"
                         onClick={() => toggleTodoCompletion(todo.id)}
-                        className="mt-1 text-slate-400 transition hover:text-[#4f9f91]"
+                        className="mt-1 text-slate-400 transition hover:text-[#3CC4AD]"
                         aria-label="할 일 완료 처리"
                       >
                         <CheckCircleIcon />
@@ -755,13 +771,16 @@ function CalendarPage() {
                             <p className="mt-2 text-sm text-slate-400">
                               {formatTodoDate(todo.date)}
                             </p>
-                            {todo.project && todo.project !== '선택하지 않음' ? (
-                              <p className="mt-1 text-sm text-slate-400">{todo.project}</p>
+                            {todo.project &&
+                            todo.project !== "선택하지 않음" ? (
+                              <p className="mt-1 text-sm text-slate-400">
+                                {todo.project}
+                              </p>
                             ) : null}
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <span className="shrink-0 rounded-full bg-[#f7efb4] px-4 py-2 text-sm font-semibold text-amber-700">
+                            <span className="shrink-0 rounded-full bg-[#FEF9D1] px-4 py-2 text-sm font-semibold text-[#70620A]">
                               {getTodoBadgeLabel(todo.date, selectedDate)}
                             </span>
                             <button
@@ -792,11 +811,14 @@ function CalendarPage() {
 
                   <div className="mt-4 space-y-4">
                     {completedTodos.map((todo) => (
-                      <article key={todo.id} className="flex items-start gap-4 px-2 py-1">
+                      <article
+                        key={todo.id}
+                        className="flex items-start gap-4 px-2 py-1"
+                      >
                         <button
                           type="button"
                           onClick={() => toggleTodoCompletion(todo.id)}
-                          className="mt-1 text-[#74c7b8] transition hover:text-[#4f9f91]"
+                          className="mt-1 text-[#3CC4AD] transition hover:text-[#2D9A87]"
                           aria-label="완료 해제"
                         >
                           <CheckCircleIcon completed />
@@ -821,7 +843,7 @@ function CalendarPage() {
 
       {todoDialog ? (
         <TodoFormDialog
-          key={`${todoDialog.mode}-${todoDialog.todoId ?? 'new'}`}
+          key={`${todoDialog.mode}-${todoDialog.todoId ?? "new"}`}
           mode={todoDialog.mode}
           initialValues={buildTodoFormInitialValues(selectedDate, editingTodo)}
           onClose={() => setTodoDialog(null)}
@@ -831,9 +853,12 @@ function CalendarPage() {
 
       {eventDialog ? (
         <EventFormDialog
-          key={`${eventDialog.mode}-${eventDialog.eventId ?? 'new'}`}
+          key={`${eventDialog.mode}-${eventDialog.eventId ?? "new"}`}
           mode={eventDialog.mode}
-          initialValues={buildEventFormInitialValues(selectedDate, editingEvent)}
+          initialValues={buildEventFormInitialValues(
+            selectedDate,
+            editingEvent,
+          )}
           onClose={() => setEventDialog(null)}
           onSubmit={handleSubmitEvent}
         />

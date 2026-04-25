@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  EVENT_COLOR_OPTIONS,
   EVENT_THEMES,
   EVENT_TYPE_OPTIONS,
   PROJECT_OPTIONS,
@@ -46,9 +47,22 @@ function MapPinIcon() {
   );
 }
 
-function SelectArrowIcon() {
+function CheckIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[2]">
+    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[2.4]">
+      <path d="m5 12 4 4 10-10" />
+    </svg>
+  );
+}
+
+function SelectArrowIcon({ open = false }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`h-5 w-5 fill-none stroke-current stroke-[2] transition ${
+        open ? 'rotate-180' : ''
+      }`}
+    >
       <path d="m7 10 5 5 5-5" />
     </svg>
   );
@@ -66,7 +80,7 @@ function DialogShell({ maxWidth = 'max-w-[640px]', onClose, children }) {
     >
       <div className="flex min-h-full items-start justify-center sm:items-center">
         <div
-          className={`w-full ${maxWidth} overflow-hidden rounded-[32px] bg-white shadow-[0_35px_90px_-35px_rgba(15,23,42,0.45)]`}
+          className={`w-full ${maxWidth} overflow-hidden rounded-[36px] bg-white shadow-[0_35px_90px_-35px_rgba(15,23,42,0.45)]`}
         >
           {children}
         </div>
@@ -115,7 +129,7 @@ function FieldInput(props) {
   return (
     <input
       {...props}
-      className="w-full rounded-[22px] border border-slate-100 bg-[#f7f8fc] px-6 py-5 text-lg text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-lime-300 focus:bg-white"
+      className="w-full rounded-[28px] border border-slate-100 bg-[#f7f8fc] px-6 py-5 text-lg text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-[#AFE077] focus:bg-white"
     />
   );
 }
@@ -124,23 +138,121 @@ function FieldTextarea(props) {
   return (
     <textarea
       {...props}
-      className="min-h-[138px] w-full rounded-[22px] border border-slate-100 bg-[#f7f8fc] px-6 py-5 text-lg text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-lime-300 focus:bg-white"
+      className="min-h-[138px] w-full rounded-[28px] border border-slate-100 bg-[#f7f8fc] px-6 py-5 text-lg text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-[#AFE077] focus:bg-white"
     />
   );
 }
 
-function FieldSelect({ children, ...props }) {
+function FieldSelect({ value, options, onChange, placeholder }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (!wrapperRef.current?.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+    };
+  }, []);
+
+  const selectedOption =
+    options.find((option) => option.value === value) ?? null;
+
   return (
-    <div className="relative">
-      <select
-        {...props}
-        className="w-full appearance-none rounded-[22px] border border-slate-100 bg-[#f7f8fc] px-6 py-5 pr-14 text-lg text-slate-900 outline-none transition focus:border-lime-300 focus:bg-white"
+    <div ref={wrapperRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen((currentState) => !currentState)}
+        className={`flex w-full items-center justify-between rounded-[28px] border px-6 py-5 text-left text-lg text-slate-900 transition ${
+          isOpen
+            ? 'border-[#AFE077] bg-white shadow-[0_20px_40px_-30px_rgba(149,211,79,0.5)]'
+            : 'border-slate-100 bg-[#f7f8fc] hover:border-slate-200'
+        }`}
       >
-        {children}
-      </select>
-      <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-slate-500">
-        <SelectArrowIcon />
-      </span>
+        <span>{selectedOption?.label ?? placeholder}</span>
+        <span className="text-slate-500">
+          <SelectArrowIcon open={isOpen} />
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div className="absolute z-30 mt-3 w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white p-2 shadow-[0_25px_60px_-30px_rgba(15,23,42,0.35)]">
+          <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
+            {options.map((option) => {
+              const isSelected = option.value === value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-[22px] px-4 py-3 text-left text-lg transition ${
+                    isSelected
+                      ? 'bg-[#EEF7E0] text-slate-900'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>{option.label}</span>
+                  {isSelected ? (
+                    <span className="text-[#6FA839]">
+                      <CheckIcon />
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function EventColorPicker({ value, onChange }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {EVENT_COLOR_OPTIONS.map((option) => {
+        const theme = EVENT_THEMES[option.value];
+        const isSelected = value === option.value;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onChange(option.value)}
+            className={`flex items-center gap-4 rounded-[24px] border px-4 py-4 text-left transition ${
+              isSelected
+                ? 'border-slate-900 ring-2 ring-slate-200'
+                : 'border-slate-200 hover:border-slate-300'
+            } ${theme.card}`}
+          >
+            <span
+              className={`flex h-11 w-11 items-center justify-center rounded-full ${theme.swatch}`}
+            >
+              <span className={`h-5 w-5 rounded-full ${theme.dot}`} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-slate-900">
+                {option.label}
+              </span>
+            </span>
+            {isSelected ? (
+              <span className="text-slate-900">
+                <CheckIcon />
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -149,7 +261,7 @@ function SecondaryButton({ children, ...props }) {
   return (
     <button
       {...props}
-      className="flex-1 rounded-[22px] border border-slate-200 px-5 py-4 text-xl font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+      className="flex-1 rounded-[26px] border border-slate-200 px-5 py-4 text-xl font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
     >
       {children}
     </button>
@@ -159,26 +271,30 @@ function SecondaryButton({ children, ...props }) {
 function PrimaryButton({ children, tone = 'primary', ...props }) {
   const toneClassName =
     tone === 'danger'
-      ? 'bg-white text-rose-400 ring-1 ring-rose-300 hover:bg-rose-50'
-      : 'bg-lime-400 text-white hover:bg-lime-500';
+      ? 'bg-white text-[#CC3F41] ring-1 ring-[#FFC1C1] hover:bg-[#FFE0E0]'
+      : 'bg-[#95D34F] text-white hover:bg-[#6FA839]';
 
   return (
     <button
       {...props}
-      className={`flex-1 rounded-[22px] px-5 py-4 text-xl font-medium transition ${toneClassName}`}
+      className={`flex-1 rounded-[26px] px-5 py-4 text-xl font-medium transition ${toneClassName}`}
     >
       {children}
     </button>
   );
 }
 
+function toProjectOption(projectName) {
+  return { value: projectName, label: projectName };
+}
+
 export function TodoFormDialog({ mode, initialValues, onClose, onSubmit }) {
   const [formState, setFormState] = useState(initialValues);
 
-  const updateField = (fieldName) => (event) => {
+  const setFieldValue = (fieldName, nextValue) => {
     setFormState((currentState) => ({
       ...currentState,
-      [fieldName]: event.target.value,
+      [fieldName]: nextValue,
     }));
   };
 
@@ -216,7 +332,7 @@ export function TodoFormDialog({ mode, initialValues, onClose, onSubmit }) {
           <FormField label="제목">
             <FieldInput
               value={formState.title}
-              onChange={updateField('title')}
+              onChange={(event) => setFieldValue('title', event.target.value)}
               placeholder="할 일을 입력하세요"
             />
           </FormField>
@@ -224,28 +340,24 @@ export function TodoFormDialog({ mode, initialValues, onClose, onSubmit }) {
           <FormField label="우선순위">
             <FieldSelect
               value={formState.priority}
-              onChange={updateField('priority')}
-            >
-              {TODO_PRIORITY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </FieldSelect>
+              options={TODO_PRIORITY_OPTIONS}
+              onChange={(nextValue) => setFieldValue('priority', nextValue)}
+              placeholder="우선순위를 선택하세요"
+            />
           </FormField>
 
           <FormField label="마감일" optional>
             <FieldInput
               type="date"
               value={formState.date}
-              onChange={updateField('date')}
+              onChange={(event) => setFieldValue('date', event.target.value)}
             />
           </FormField>
 
           <FormField label="설명" optional>
             <FieldTextarea
               value={formState.description}
-              onChange={updateField('description')}
+              onChange={(event) => setFieldValue('description', event.target.value)}
               placeholder="할 일에 대한 설명을 입력하세요"
             />
           </FormField>
@@ -253,14 +365,10 @@ export function TodoFormDialog({ mode, initialValues, onClose, onSubmit }) {
           <FormField label="프로젝트" optional>
             <FieldSelect
               value={formState.project}
-              onChange={updateField('project')}
-            >
-              {PROJECT_OPTIONS.map((projectName) => (
-                <option key={projectName} value={projectName}>
-                  {projectName}
-                </option>
-              ))}
-            </FieldSelect>
+              options={PROJECT_OPTIONS.map(toProjectOption)}
+              onChange={(nextValue) => setFieldValue('project', nextValue)}
+              placeholder="프로젝트를 선택하세요"
+            />
           </FormField>
         </form>
       </FormLayout>
@@ -271,17 +379,22 @@ export function TodoFormDialog({ mode, initialValues, onClose, onSubmit }) {
 export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
   const [formState, setFormState] = useState(initialValues);
 
-  const updateField = (fieldName) => (event) => {
+  const setFieldValue = (fieldName, nextValue) => {
     setFormState((currentState) => ({
       ...currentState,
-      [fieldName]: event.target.value,
+      [fieldName]: nextValue,
     }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!formState.title.trim() || !formState.date || !formState.startTime || !formState.endTime) {
+    if (
+      !formState.title.trim() ||
+      !formState.date ||
+      !formState.startTime ||
+      !formState.endTime
+    ) {
       return;
     }
 
@@ -313,7 +426,7 @@ export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
           <FormField label="제목">
             <FieldInput
               value={formState.title}
-              onChange={updateField('title')}
+              onChange={(event) => setFieldValue('title', event.target.value)}
               placeholder="일정 제목"
             />
           </FormField>
@@ -322,7 +435,7 @@ export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
             <FieldInput
               type="date"
               value={formState.date}
-              onChange={updateField('date')}
+              onChange={(event) => setFieldValue('date', event.target.value)}
             />
           </FormField>
 
@@ -331,7 +444,7 @@ export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
               <FieldInput
                 type="time"
                 value={formState.startTime}
-                onChange={updateField('startTime')}
+                onChange={(event) => setFieldValue('startTime', event.target.value)}
               />
             </FormField>
 
@@ -339,25 +452,31 @@ export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
               <FieldInput
                 type="time"
                 value={formState.endTime}
-                onChange={updateField('endTime')}
+                onChange={(event) => setFieldValue('endTime', event.target.value)}
               />
             </FormField>
           </div>
 
           <FormField label="유형">
-            <FieldSelect value={formState.type} onChange={updateField('type')}>
-              {EVENT_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </FieldSelect>
+            <FieldSelect
+              value={formState.type}
+              options={EVENT_TYPE_OPTIONS}
+              onChange={(nextValue) => setFieldValue('type', nextValue)}
+              placeholder="일정 유형을 선택하세요"
+            />
+          </FormField>
+
+          <FormField label="일정 색상">
+            <EventColorPicker
+              value={formState.color}
+              onChange={(nextValue) => setFieldValue('color', nextValue)}
+            />
           </FormField>
 
           <FormField label="장소" optional>
             <FieldInput
               value={formState.location}
-              onChange={updateField('location')}
+              onChange={(event) => setFieldValue('location', event.target.value)}
               placeholder="장소를 입력하세요"
             />
           </FormField>
@@ -365,7 +484,7 @@ export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
           <FormField label="설명" optional>
             <FieldTextarea
               value={formState.description}
-              onChange={updateField('description')}
+              onChange={(event) => setFieldValue('description', event.target.value)}
               placeholder="일정에 대한 설명을 입력하세요"
             />
           </FormField>
@@ -373,14 +492,10 @@ export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
           <FormField label="프로젝트" optional>
             <FieldSelect
               value={formState.project}
-              onChange={updateField('project')}
-            >
-              {PROJECT_OPTIONS.map((projectName) => (
-                <option key={projectName} value={projectName}>
-                  {projectName}
-                </option>
-              ))}
-            </FieldSelect>
+              options={PROJECT_OPTIONS.map(toProjectOption)}
+              onChange={(nextValue) => setFieldValue('project', nextValue)}
+              placeholder="프로젝트를 선택하세요"
+            />
           </FormField>
         </form>
       </FormLayout>
@@ -389,7 +504,7 @@ export function EventFormDialog({ mode, initialValues, onClose, onSubmit }) {
 }
 
 export function EventDetailDialog({ event, onClose, onDelete, onEdit }) {
-  const theme = EVENT_THEMES[event.color] ?? EVENT_THEMES.lime;
+  const theme = EVENT_THEMES[event.color] ?? EVENT_THEMES.primary;
 
   return (
     <DialogShell maxWidth="max-w-[650px]" onClose={onClose}>

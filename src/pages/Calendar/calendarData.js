@@ -22,40 +22,84 @@ export const PROJECT_OPTIONS = [
   '캡스톤',
 ];
 
+export const EVENT_COLOR_OPTIONS = [
+  {
+    value: 'primary',
+    label: 'Sage',
+  },
+  {
+    value: 'secondary',
+    label: 'Mint',
+  },
+  {
+    value: 'success',
+    label: 'Lime',
+  },
+  {
+    value: 'info',
+    label: 'Sky',
+  },
+  {
+    value: 'warning',
+    label: 'Amber',
+  },
+  {
+    value: 'danger',
+    label: 'Rose',
+  },
+];
+
 export const EVENT_THEMES = {
-  lime: {
-    dot: 'bg-lime-400',
-    chip: 'border-lime-200 bg-lime-100 text-lime-700',
-    card: 'bg-lime-50',
+  primary: {
+    dot: 'bg-[#95D34F]',
+    chip: 'border-[#D1EFA9] bg-[#E8F7D4] text-[#3F6021]',
+    card: 'bg-[#E8F7D4]',
+    swatch: 'bg-[#E8F7D4]',
+    text: 'text-[#3F6021]',
   },
-  amber: {
-    dot: 'bg-amber-400',
-    chip: 'border-amber-200 bg-amber-100 text-amber-700',
-    card: 'bg-amber-50',
+  secondary: {
+    dot: 'bg-[#3CC4AD]',
+    chip: 'border-[#A9EBE1] bg-[#D4F5F0] text-[#1A574D]',
+    card: 'bg-[#D4F5F0]',
+    swatch: 'bg-[#D4F5F0]',
+    text: 'text-[#1A574D]',
   },
-  teal: {
-    dot: 'bg-teal-400',
-    chip: 'border-teal-200 bg-teal-100 text-teal-700',
-    card: 'bg-teal-50',
+  success: {
+    dot: 'bg-[#6FDB6D]',
+    chip: 'border-[#BFEFBD] bg-[#DFF7DE] text-[#2D632C]',
+    card: 'bg-[#DFF7DE]',
+    swatch: 'bg-[#DFF7DE]',
+    text: 'text-[#2D632C]',
   },
-  sky: {
-    dot: 'bg-sky-400',
-    chip: 'border-sky-200 bg-sky-100 text-sky-700',
-    card: 'bg-sky-50',
+  info: {
+    dot: 'bg-[#5BA3F3]',
+    chip: 'border-[#BBE1FB] bg-[#DDF0FD] text-[#214B75]',
+    card: 'bg-[#DDF0FD]',
+    swatch: 'bg-[#DDF0FD]',
+    text: 'text-[#214B75]',
   },
-  violet: {
-    dot: 'bg-violet-400',
-    chip: 'border-violet-200 bg-violet-100 text-violet-700',
-    card: 'bg-violet-50',
+  warning: {
+    dot: 'bg-[#F2D518]',
+    chip: 'border-[#FDF3A3] bg-[#FEF9D1] text-[#70620A]',
+    card: 'bg-[#FEF9D1]',
+    swatch: 'bg-[#FEF9D1]',
+    text: 'text-[#70620A]',
+  },
+  danger: {
+    dot: 'bg-[#FF5456]',
+    chip: 'border-[#FFC1C1] bg-[#FFE0E0] text-[#752425]',
+    card: 'bg-[#FFE0E0]',
+    swatch: 'bg-[#FFE0E0]',
+    text: 'text-[#752425]',
   },
 };
 
 const EVENT_COLOR_BY_TYPE = {
-  meeting: 'lime',
-  deadline: 'amber',
-  presentation: 'teal',
-  review: 'violet',
-  content: 'sky',
+  meeting: 'primary',
+  deadline: 'warning',
+  presentation: 'secondary',
+  review: 'info',
+  content: 'success',
 };
 
 function padNumber(value) {
@@ -134,11 +178,7 @@ export function isWithinRange(date, startDate, endDate) {
 }
 
 export function getEventColorByType(type) {
-  return EVENT_COLOR_BY_TYPE[type] ?? 'lime';
-}
-
-export function getEventTypeLabel(type) {
-  return EVENT_TYPE_OPTIONS.find((option) => option.value === type)?.label ?? '일정';
+  return EVENT_COLOR_BY_TYPE[type] ?? 'primary';
 }
 
 export function getTodoPriorityLabel(priority) {
@@ -234,7 +274,7 @@ export function buildMockCalendarData(baseDate) {
         type: 'meeting',
         project: '디자인 시스템',
         description: '디자인 시스템 최종 검토 및 승인',
-        color: getEventColorByType('meeting'),
+        color: 'primary',
       },
       {
         id: 'event-dev-sprint',
@@ -245,7 +285,7 @@ export function buildMockCalendarData(baseDate) {
         type: 'deadline',
         project: 'Recor-D',
         description: '캘린더 기능과 메인 대시보드 연동 작업 마감',
-        color: getEventColorByType('deadline'),
+        color: 'warning',
       },
       {
         id: 'event-portfolio-demo',
@@ -256,7 +296,7 @@ export function buildMockCalendarData(baseDate) {
         type: 'presentation',
         project: '포트폴리오',
         description: '포트폴리오 주요 작업 결과를 발표하고 피드백을 받습니다.',
-        color: getEventColorByType('presentation'),
+        color: 'secondary',
       },
       {
         id: 'event-content-production',
@@ -267,7 +307,7 @@ export function buildMockCalendarData(baseDate) {
         type: 'content',
         project: 'Recor-D',
         description: '서비스 소개 영상과 케이스 스터디 시각 자료를 촬영합니다.',
-        color: getEventColorByType('content'),
+        color: 'success',
       },
       {
         id: 'event-usability-review',
@@ -278,7 +318,7 @@ export function buildMockCalendarData(baseDate) {
         type: 'review',
         project: '캡스톤',
         description: '사용자 테스트 결과를 바탕으로 개선 포인트를 정리합니다.',
-        color: getEventColorByType('review'),
+        color: 'info',
       },
     ],
     todos: [
