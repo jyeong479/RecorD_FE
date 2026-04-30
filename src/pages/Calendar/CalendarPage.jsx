@@ -8,6 +8,7 @@ import {
   formatEventDateRange,
   formatMonthTitle,
   formatReadableDate,
+  getTodoBadgeToneClassName,
   formatTodoDate,
   getEventColorByType,
   getTodoBadgeLabel,
@@ -150,10 +151,32 @@ function sortEventsByAnchor(events, anchorDate) {
   });
 }
 
-function sortTodosByDate(todos) {
-  return [...todos].sort(
-    (firstTodo, secondTodo) => firstTodo.date - secondTodo.date,
-  );
+function sortTodosByPriorityAndDate(todos) {
+  const priorityRank = {
+    high: 0,
+    medium: 1,
+    low: 2,
+  };
+
+  return [...todos].sort((firstTodo, secondTodo) => {
+    const firstPriority =
+      priorityRank[firstTodo.priority] ?? priorityRank.medium;
+    const secondPriority =
+      priorityRank[secondTodo.priority] ?? priorityRank.medium;
+
+    if (firstPriority !== secondPriority) {
+      return firstPriority - secondPriority;
+    }
+
+    const firstDate = startOfDay(firstTodo.date).getTime();
+    const secondDate = startOfDay(secondTodo.date).getTime();
+
+    if (firstDate !== secondDate) {
+      return firstDate - secondDate;
+    }
+
+    return firstTodo.title.localeCompare(secondTodo.title, "ko");
+  });
 }
 
 function buildTodoFormInitialValues(selectedDate, todo) {
@@ -295,7 +318,7 @@ function CalendarPage() {
   const activeTodos = useMemo(() => {
     const anchorTime = startOfDay(selectedDate).getTime();
 
-    return sortTodosByDate(
+    return sortTodosByPriorityAndDate(
       todos.filter(
         (todo) =>
           !todo.completed && startOfDay(todo.date).getTime() >= anchorTime,
@@ -306,7 +329,9 @@ function CalendarPage() {
   const completedTodos = useMemo(
     () =>
       [...todos]
-        .filter((todo) => todo.completed)
+        .filter(
+          (todo) => todo.completed && isSameDay(todo.date, selectedDate),
+        )
         .sort((firstTodo, secondTodo) => {
           const firstTime =
             firstTodo.completedAt?.getTime() ?? firstTodo.date.getTime();
@@ -315,7 +340,7 @@ function CalendarPage() {
 
           return secondTime - firstTime;
         }),
-    [todos],
+    [selectedDate, todos],
   );
 
   const selectedEvent =
@@ -709,7 +734,7 @@ function CalendarPage() {
                         key={event.id}
                         type="button"
                         onClick={() => openEventDetailDialog(event)}
-                        className={`block w-full rounded-[24px] border border-slate-100 p-5 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${theme.card}`}
+                        className={`block w-full rounded-[24px] border bg-white p-5 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${theme.panelBorder}`}
                       >
                         <div className="flex items-start gap-4">
                           <span
@@ -801,7 +826,12 @@ function CalendarPage() {
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <span className="shrink-0 rounded-full bg-[#FEF9D1] px-4 py-2 text-sm font-semibold text-[#70620A]">
+                            <span
+                              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${getTodoBadgeToneClassName(
+                                todo.date,
+                                selectedDate,
+                              )}`}
+                            >
                               {getTodoBadgeLabel(todo.date, selectedDate)}
                             </span>
                             <button
