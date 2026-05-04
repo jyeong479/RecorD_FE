@@ -524,16 +524,25 @@ function MeetingNoteFormDialog({
           </FormField>
 
           <FormField label="소요 시간">
-            <Input
-              type="number"
-              min="0"
-              step="5"
-              value={values.durationMinutes}
-              onChange={(event) =>
-                onChange("durationMinutes", event.target.value)
-              }
-              placeholder="예: 45"
-            />
+            <div className="relative">
+              <Input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={values.durationMinutes}
+                onChange={(event) =>
+                  onChange(
+                    "durationMinutes",
+                    event.target.value.replace(/\D/g, ""),
+                  )
+                }
+                placeholder="예: 45"
+                className="pr-14"
+              />
+              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-base font-medium text-slate-500">
+                분
+              </span>
+            </div>
           </FormField>
 
           <div className="md:col-span-2">
@@ -603,7 +612,7 @@ function MeetingNoteFormDialog({
           <ActionButton tone="light" onClick={onClose}>
             취소
           </ActionButton>
-          <ActionButton type="submit" disabled={isSaving}>
+          <ActionButton type="submit" tone="charcoal" disabled={isSaving}>
             {isSaving ? "저장 중..." : "저장"}
           </ActionButton>
         </div>
