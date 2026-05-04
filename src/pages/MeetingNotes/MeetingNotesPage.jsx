@@ -346,10 +346,18 @@ function TagChip({ children, tone = "soft" }) {
   );
 }
 
-function ModalShell({ title, children, onClose, size = "lg" }) {
+function ModalShell({
+  title,
+  children,
+  onClose,
+  size = "lg",
+  panelClassName = "",
+}) {
   const maxWidthClassName =
     size === "sm"
       ? "max-w-[460px]"
+      : size === "md"
+        ? "max-w-[520px]"
       : size === "xl"
         ? "max-w-[980px]"
         : "max-w-[760px]";
@@ -359,7 +367,7 @@ function ModalShell({ title, children, onClose, size = "lg" }) {
       <div
         role="dialog"
         aria-modal="true"
-        className={`max-h-[92vh] w-full overflow-hidden rounded-[28px] bg-white shadow-[0_40px_100px_-40px_rgba(15,23,42,0.4)] ${maxWidthClassName}`}
+        className={`max-h-[92vh] w-full overflow-hidden rounded-[28px] bg-white shadow-[0_40px_100px_-40px_rgba(15,23,42,0.4)] ${maxWidthClassName} ${panelClassName}`}
       >
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5 sm:px-7">
           <h2 className="text-[2rem] font-black tracking-tight text-slate-900">
@@ -420,9 +428,11 @@ function Select({ className = "", children, ...props }) {
   );
 }
 
-function HelperBanner({ children }) {
+function HelperBanner({ children, className = "" }) {
   return (
-    <div className="rounded-[24px] border border-[#b6e6dc] bg-gradient-to-r from-[#e8faf7] to-[#f4fbdd] px-5 py-5">
+    <div
+      className={`rounded-[24px] border border-[#b6e6dc] bg-gradient-to-r from-[#e8faf7] to-[#f4fbdd] px-5 py-5 ${className}`}
+    >
       <div className="flex items-start gap-3">
         <span className="mt-0.5 text-[#67b6a7]">
           <SparklesIcon />
@@ -630,14 +640,20 @@ function UploadDialog({
   onSubmit,
 }) {
   return (
-    <ModalShell title="녹음 파일 업로드" onClose={onClose}>
+    <ModalShell
+      title="녹음 파일 업로드"
+      onClose={onClose}
+      size="md"
+      panelClassName="rounded-[20px]"
+    >
       <div className="space-y-5">
         <VoiceUploader
           fileName={file?.name ?? ""}
           onSelectFile={onSelectFile}
+          className="rounded-[20px]"
         />
 
-        <HelperBanner>
+        <HelperBanner className="rounded-[18px]">
           업로드된 녹음 파일은 자동으로 텍스트로 변환되고 AI가 회의 내용을
           분석하여 요약, 주요 논의 사항, 체크리스트를 추출해드립니다.
         </HelperBanner>
@@ -649,11 +665,16 @@ function UploadDialog({
         ) : null}
 
         <div className="flex gap-3">
-          <ActionButton tone="light" className="flex-1" onClick={onClose}>
+          <ActionButton
+            tone="light"
+            className="flex-1 rounded-[14px]"
+            onClick={onClose}
+          >
             취소
           </ActionButton>
           <ActionButton
-            className="flex-1"
+            tone="charcoal"
+            className="flex-1 rounded-[14px]"
             onClick={onSubmit}
             disabled={isSubmitting}
           >
