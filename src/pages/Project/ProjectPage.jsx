@@ -28,11 +28,11 @@ function PlusIcon() {
   );
 }
 
-function SparkleIcon() {
+function SparkleIcon({ className = 'h-5 w-5' }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
+      className={`${className} fill-none stroke-current stroke-[1.8]`}
     >
       <path d="m12 4 1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6L12 4Z" />
       <path d="m18.5 3 .6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6.6-1.6Z" />
@@ -279,6 +279,8 @@ function ActionButton({
   const toneClassName =
     tone === 'secondary'
       ? 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+      : tone === 'dark'
+        ? 'bg-[#454545] text-white shadow-[0_18px_35px_-24px_rgba(69,69,69,0.62)] hover:bg-[#363636]'
       : tone === 'outline-accent'
         ? 'border border-[#a8d45f] bg-white text-[#7baa3a] hover:bg-[#f4f9e8]'
         : 'bg-[#a8d45f] text-white hover:brightness-95';
@@ -294,9 +296,11 @@ function ActionButton({
   );
 }
 
-function SectionCard({ title, children, rightSlot }) {
+function SectionCard({ title, children, rightSlot, className = '', bodyClassName = '' }) {
   return (
-    <section className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <section
+      className={`rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8 ${className}`}
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h3 className="text-2xl font-black tracking-tight text-slate-900">
@@ -305,7 +309,7 @@ function SectionCard({ title, children, rightSlot }) {
         </div>
         {rightSlot}
       </div>
-      <div className="mt-6">{children}</div>
+      <div className={`mt-6 ${bodyClassName}`}>{children}</div>
     </section>
   );
 }
@@ -319,7 +323,7 @@ function ProjectCard({ project, metrics, onSelect }) {
     <button
       type="button"
       onClick={() => onSelect(project.id)}
-      className="flex h-full w-full flex-col rounded-[32px] border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-[0_22px_45px_-30px_rgba(15,23,42,0.3)]"
+      className="flex h-full w-full flex-col rounded-[24px] border border-slate-200 bg-white px-5 py-4 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-[0_22px_45px_-30px_rgba(15,23,42,0.3)] sm:px-6 sm:py-5"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
@@ -328,22 +332,22 @@ function ProjectCard({ project, metrics, onSelect }) {
               className="h-4 w-4 rounded-full"
               style={{ backgroundColor: theme.accent }}
             />
-            <h2 className="truncate text-[2rem] font-black tracking-tight text-slate-900">
+            <h2 className="truncate text-[1.45rem] font-black tracking-tight text-slate-900 sm:text-[1.6rem]">
               {project.name}
             </h2>
           </div>
-          <p className="mt-4 text-lg leading-9 text-slate-400">
+          <p className="mt-3 text-lg leading-8 text-slate-400">
             {clampText(project.description, 44)}
           </p>
         </div>
         <span
-          className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${statusMeta.toneClassName}`}
+          className={`shrink-0 rounded-[18px] px-4 py-1.5 text-sm font-semibold ${statusMeta.toneClassName}`}
         >
           {statusMeta.label}
         </span>
       </div>
 
-      <div className="mt-7 flex flex-wrap gap-x-8 gap-y-3 text-lg text-slate-400">
+      <div className="mt-6 flex flex-wrap gap-x-7 gap-y-3 text-lg text-slate-400">
         <span>
           회의록 <strong className="ml-1 text-slate-900">{metrics.meetingCount}</strong>
         </span>
@@ -359,18 +363,18 @@ function ProjectCard({ project, metrics, onSelect }) {
         </span>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-5 flex flex-wrap gap-3">
         {project.tags.map((tag) => (
           <span
             key={tag}
-            className="rounded-2xl bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600"
+            className="rounded-[14px] bg-slate-50 px-4 py-1.5 text-sm font-semibold text-slate-600"
           >
             {tag}
           </span>
         ))}
       </div>
 
-      <div className="mt-8 border-t border-slate-100 pt-5 text-lg text-slate-400">
+      <div className="mt-6 border-t border-slate-100 pt-4 text-lg text-slate-400">
         {formatDateRange(project.startDate, project.endDate)}
       </div>
     </button>
@@ -1232,14 +1236,17 @@ function ProjectPage() {
     <section className="space-y-8">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="text-5xl font-black tracking-tight text-slate-900">
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">
             프로젝트
           </h1>
-          <p className="mt-4 text-2xl leading-10 text-slate-400">
+          <p className="mt-3 text-lg leading-8 text-slate-400 sm:text-xl">
             프로젝트를 관리하고 STAR 기법으로 포트폴리오를 작성하세요
           </p>
         </div>
-        <ActionButton onClick={() => setProjectFormState({ mode: 'create' })}>
+        <ActionButton
+          tone="dark"
+          onClick={() => setProjectFormState({ mode: 'create' })}
+        >
           <PlusIcon />
           새 프로젝트
         </ActionButton>
@@ -1282,59 +1289,57 @@ function ProjectPage() {
         </div>
       ) : null}
 
-      <SectionCard title="STAR 기법으로 자동 포트폴리오 생성">
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
-          <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[28px] bg-[#a8d45f] text-white shadow-[0_24px_35px_-28px_rgba(168,212,95,0.8)]">
-            <SparkleIcon />
+      <SectionCard
+        title="STAR 기법으로 자동 포트폴리오 생성"
+        className="p-5 sm:p-6"
+      >
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[20px] bg-slate-900 text-white shadow-[0_20px_30px_-26px_rgba(15,23,42,0.7)]">
+            <SparkleIcon className="h-7 w-7" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-xl leading-9 text-slate-400">
+            <p className="text-base leading-8 text-slate-400 sm:text-lg">
               AI가 회의록, 일정, 할 일 목록을 분석하여 STAR(Situation, Task,
               Action, Result) 기법에 맞춘 포트폴리오 초안을 자동으로 작성합니다.
               한 프로젝트에서 여러 관점의 포트폴리오를 만들 수 있도록 구성했습니다.
             </p>
-            <div className="mt-8 grid gap-4 lg:grid-cols-4">
+            <div className="mt-6 grid gap-3 lg:grid-cols-4">
               {[
                 {
                   title: 'Situation',
                   description: '프로젝트 배경과 상황',
-                  className: 'bg-[#f4f9e8] text-[#8abf43]',
+                  titleClassName: 'text-[#8abf43]',
                 },
                 {
                   title: 'Task',
                   description: '맡은 역할과 과제',
-                  className: 'bg-[#eef4ff] text-[#6b90df]',
+                  titleClassName: 'text-[#6b90df]',
                 },
                 {
                   title: 'Action',
                   description: '구체적인 행동과 노력',
-                  className: 'bg-[#eef9ec] text-[#7bbd64]',
+                  titleClassName: 'text-[#7bbd64]',
                 },
                 {
                   title: 'Result',
                   description: '달성한 성과와 결과',
-                  className: 'bg-[#fff8dd] text-[#d0b72f]',
+                  titleClassName: 'text-[#d0b72f]',
                 },
               ].map((section) => (
                 <div
                   key={section.title}
-                  className={`rounded-[28px] border border-slate-100 px-6 py-6 ${section.className}`}
+                  className="rounded-[20px] border border-slate-200 bg-white px-5 py-5"
                 >
-                  <p className="text-3xl font-black tracking-tight">
+                  <p
+                    className={`text-[2rem] font-black tracking-tight ${section.titleClassName}`}
+                  >
                     {section.title}
                   </p>
-                  <p className="mt-4 text-base">{section.description}</p>
+                  <p className="mt-3 text-sm text-slate-500 sm:text-[15px]">
+                    {section.description}
+                  </p>
                 </div>
               ))}
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3 text-sm font-semibold text-slate-500">
-              <span className="rounded-full bg-slate-100 px-4 py-2">
-                Whisper AI로 회의 음성을 텍스트화
-              </span>
-              <span className="rounded-full bg-slate-100 px-4 py-2">
-                Google AI Studio로 요약 및 STAR 초안 생성
-              </span>
             </div>
           </div>
         </div>
@@ -1357,7 +1362,7 @@ function ProjectPage() {
         <section
           className="overflow-hidden rounded-[32px] px-5 py-4 shadow-sm sm:px-6 sm:py-5"
           style={{
-            background: getProjectTheme(selectedProject.colorKey).heroGradient,
+            backgroundColor: getProjectTheme(selectedProject.colorKey).accent,
           }}
         >
           <div className="flex flex-col gap-4">
