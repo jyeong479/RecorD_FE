@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
   PROJECT_COLOR_THEMES,
   PROJECT_STATUS_META,
-} from '../../data/projectApi';
-import { isDateRangeValid } from '../../utils/dateUtils';
+} from "../../data/projectApi";
+import { isDateRangeValid } from "../../utils/dateUtils";
 
 function XIcon() {
   return (
@@ -35,7 +35,7 @@ function createInitialFormValues(project) {
       description: project.description,
       startDate: project.startDate,
       endDate: project.endDate,
-      tags: project.tags.join(', '),
+      tags: project.tags.join(", "),
       status: project.status,
       colorKey: project.colorKey,
       meetingIds: project.meetingIds,
@@ -45,13 +45,13 @@ function createInitialFormValues(project) {
   }
 
   return {
-    name: '',
-    description: '',
-    startDate: '2026-05-01',
-    endDate: '2026-06-30',
-    tags: '',
-    status: 'inProgress',
-    colorKey: 'green',
+    name: "",
+    description: "",
+    startDate: "2026-05-01",
+    endDate: "2026-06-30",
+    tags: "",
+    status: "inProgress",
+    colorKey: "green",
     meetingIds: [],
     todoIds: [],
     scheduleIds: [],
@@ -62,9 +62,8 @@ function SelectionCard({
   checked,
   title,
   meta,
-  accentColor,
   onToggle,
-  toneClassName = 'text-slate-500',
+  toneClassName = "text-slate-500",
 }) {
   return (
     <button
@@ -72,16 +71,16 @@ function SelectionCard({
       onClick={onToggle}
       className={`flex w-full items-start gap-3 rounded-[22px] border px-4 py-4 text-left transition ${
         checked
-          ? 'border-slate-900 bg-slate-50 shadow-sm'
-          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+          ? "border-slate-900 bg-slate-50 shadow-sm"
+          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
       }`}
     >
       <span
         className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
         style={{
-          borderColor: checked ? accentColor : '#cbd5e1',
-          backgroundColor: checked ? accentColor : 'transparent',
-          color: checked ? '#ffffff' : '#94a3b8',
+          borderColor: checked ? "#454545" : "#cbd5e1",
+          backgroundColor: checked ? "#454545" : "transparent",
+          color: checked ? "#ffffff" : "#94a3b8",
         }}
       >
         {checked ? <CheckIcon /> : null}
@@ -109,11 +108,11 @@ function ProjectForm({
   const [formValues, setFormValues] = useState(() =>
     createInitialFormValues(project),
   );
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     setFormValues(createInitialFormValues(project));
-    setErrorMessage('');
+    setErrorMessage("");
   }, [project]);
 
   const currentTheme =
@@ -151,28 +150,28 @@ function ProjectForm({
     event.preventDefault();
 
     if (!formValues.name.trim()) {
-      setErrorMessage('프로젝트 이름을 입력해주세요.');
+      setErrorMessage("프로젝트 이름을 입력해주세요.");
       return;
     }
 
     if (!isDateRangeValid(formValues.startDate, formValues.endDate)) {
-      setErrorMessage('종료일은 시작일보다 빠를 수 없습니다.');
+      setErrorMessage("종료일은 시작일보다 빠를 수 없습니다.");
       return;
     }
 
     if (formValues.meetingIds.length === 0 && formValues.todoIds.length === 0) {
-      setErrorMessage('최소 1개 이상의 회의록 또는 할 일을 연결해주세요.');
+      setErrorMessage("최소 1개 이상의 회의록 또는 할 일을 연결해주세요.");
       return;
     }
 
-    setErrorMessage('');
+    setErrorMessage("");
 
     onSubmit({
       ...formValues,
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       tags: formValues.tags
-        .split(',')
+        .split(",")
         .map((tag) => tag.trim())
         .filter(Boolean),
     });
@@ -194,19 +193,15 @@ function ProjectForm({
           onSubmit={handleSubmit}
           className="max-h-[92vh] overflow-y-auto px-6 pb-8 pt-8 sm:px-8 lg:px-10"
         >
-          <div className="max-w-3xl">
+          <div className="max-w-none pr-20">
             <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-4 py-1 text-sm font-semibold text-slate-500">
-              {mode === 'edit' ? '프로젝트 수정' : '새 프로젝트 생성'}
+              {mode === "edit" ? "프로젝트 수정" : "새 프로젝트 생성"}
             </span>
-            <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-900 sm:text-[2.35rem]">
-              {mode === 'edit'
-                ? '기존 프로젝트 정보를 정리하고 보완하세요'
-                : '회의록과 할 일을 묶어 프로젝트 허브를 만드세요'}
+            <h2 className="mt-5 text-[2.2rem] font-black tracking-tight text-slate-900 sm:text-[2.05rem]">
+              {mode === "edit"
+                ? "기존 프로젝트 정보를 정리하고 보완하세요"
+                : "회의록과 할 일을 묶어 프로젝트 폴더를 만드세요"}
             </h2>
-            <p className="mt-3 text-base leading-7 text-slate-500">
-              요구사항 명세서의 UC05 흐름에 맞춰 프로젝트명, 색상, 기간, 연결할
-              회의록과 할 일을 한 번에 설정할 수 있습니다.
-            </p>
           </div>
 
           {errorMessage ? (
@@ -227,7 +222,7 @@ function ProjectForm({
                     <input
                       value={formValues.name}
                       onChange={(event) =>
-                        handleChange('name', event.target.value)
+                        handleChange("name", event.target.value)
                       }
                       className="w-full rounded-[22px] border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 outline-none transition focus:border-slate-400"
                       placeholder="예: 포트폴리오 관리 시스템"
@@ -241,7 +236,7 @@ function ProjectForm({
                     <textarea
                       value={formValues.description}
                       onChange={(event) =>
-                        handleChange('description', event.target.value)
+                        handleChange("description", event.target.value)
                       }
                       rows={4}
                       className="w-full rounded-[22px] border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 outline-none transition focus:border-slate-400"
@@ -258,7 +253,7 @@ function ProjectForm({
                         type="date"
                         value={formValues.startDate}
                         onChange={(event) =>
-                          handleChange('startDate', event.target.value)
+                          handleChange("startDate", event.target.value)
                         }
                         className="picker-field-input w-full rounded-[22px] border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 outline-none transition focus:border-slate-400"
                       />
@@ -272,7 +267,7 @@ function ProjectForm({
                         type="date"
                         value={formValues.endDate}
                         onChange={(event) =>
-                          handleChange('endDate', event.target.value)
+                          handleChange("endDate", event.target.value)
                         }
                         className="picker-field-input w-full rounded-[22px] border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 outline-none transition focus:border-slate-400"
                       />
@@ -286,7 +281,7 @@ function ProjectForm({
                     <input
                       value={formValues.tags}
                       onChange={(event) =>
-                        handleChange('tags', event.target.value)
+                        handleChange("tags", event.target.value)
                       }
                       className="w-full rounded-[22px] border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 outline-none transition focus:border-slate-400"
                       placeholder="예: 웹개발, React, 디자인"
@@ -300,7 +295,7 @@ function ProjectForm({
                     <select
                       value={formValues.status}
                       onChange={(event) =>
-                        handleChange('status', event.target.value)
+                        handleChange("status", event.target.value)
                       }
                       className="w-full rounded-[22px] border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 outline-none transition focus:border-slate-400"
                     >
@@ -317,37 +312,41 @@ function ProjectForm({
               </section>
 
               <section className="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6">
-                <h3 className="text-xl font-bold text-slate-900">프로젝트 색상</h3>
+                <h3 className="text-xl font-bold text-slate-900">
+                  프로젝트 색상
+                </h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">
                   회의록, 프로젝트 카드, 포트폴리오 배지에 동일한 색상이
                   연동됩니다.
                 </p>
 
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  {Object.entries(PROJECT_COLOR_THEMES).map(([colorKey, theme]) => {
-                    const isSelected = formValues.colorKey === colorKey;
+                  {Object.entries(PROJECT_COLOR_THEMES).map(
+                    ([colorKey, theme]) => {
+                      const isSelected = formValues.colorKey === colorKey;
 
-                    return (
-                      <button
-                        key={colorKey}
-                        type="button"
-                        onClick={() => handleChange('colorKey', colorKey)}
-                        className={`rounded-[24px] border px-4 py-4 text-left transition ${
-                          isSelected
-                            ? 'border-slate-900 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.45)]'
-                            : 'border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <span
-                          className="block h-12 rounded-[16px]"
-                          style={{ background: theme.heroGradient }}
-                        />
-                        <span className="mt-3 block text-base font-semibold text-slate-900">
-                          {theme.name}
-                        </span>
-                      </button>
-                    );
-                  })}
+                      return (
+                        <button
+                          key={colorKey}
+                          type="button"
+                          onClick={() => handleChange("colorKey", colorKey)}
+                          className={`rounded-[24px] border px-4 py-4 text-left transition ${
+                            isSelected
+                              ? "border-slate-900 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.45)]"
+                              : "border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          <span
+                            className="block h-12 rounded-[16px]"
+                            style={{ background: theme.heroGradient }}
+                          />
+                          <span className="mt-3 block text-base font-semibold text-slate-900">
+                            {theme.name}
+                          </span>
+                        </button>
+                      );
+                    },
+                  )}
                 </div>
               </section>
             </div>
@@ -363,13 +362,7 @@ function ProjectForm({
                       프로젝트에 포함할 회의 기록을 선택하세요.
                     </p>
                   </div>
-                  <span
-                    className="rounded-full px-3 py-1 text-sm font-semibold"
-                    style={{
-                      backgroundColor: currentTheme.accentSoft,
-                      color: currentTheme.accentStrong,
-                    }}
-                  >
+                  <span className="inline-flex min-w-[96px] items-center justify-center whitespace-nowrap rounded-full bg-[#454545] px-4 py-1.5 text-xs font-semibold text-white sm:text-sm">
                     {formValues.meetingIds.length}개 선택
                   </span>
                 </div>
@@ -383,7 +376,7 @@ function ProjectForm({
                       meta={`${meetingNote.date} · ${meetingNote.source}`}
                       accentColor={currentTheme.accent}
                       onToggle={() =>
-                        toggleSelection('meetingIds', meetingNote.id)
+                        toggleSelection("meetingIds", meetingNote.id)
                       }
                     />
                   ))}
@@ -401,13 +394,7 @@ function ProjectForm({
                       됩니다.
                     </p>
                   </div>
-                  <span
-                    className="rounded-full px-3 py-1 text-sm font-semibold"
-                    style={{
-                      backgroundColor: currentTheme.accentSoft,
-                      color: currentTheme.accentStrong,
-                    }}
-                  >
+                  <span className="inline-flex min-w-[102px] items-center justify-center whitespace-nowrap rounded-full bg-[#454545] px-4 py-1.5 text-xs font-semibold text-white sm:text-sm">
                     완료 {completedTodoCount}개
                   </span>
                 </div>
@@ -418,12 +405,12 @@ function ProjectForm({
                       key={todo.id}
                       checked={formValues.todoIds.includes(todo.id)}
                       title={todo.title}
-                      meta={`${todo.dueDate} · ${todo.completed ? '완료' : '진행중'} · ${todo.estimate}`}
+                      meta={`${todo.dueDate} · ${todo.completed ? "완료" : "진행중"} · ${todo.estimate}`}
                       accentColor={currentTheme.accent}
                       toneClassName={
-                        todo.completed ? 'text-emerald-600' : 'text-slate-500'
+                        todo.completed ? "text-emerald-600" : "text-slate-500"
                       }
-                      onToggle={() => toggleSelection('todoIds', todo.id)}
+                      onToggle={() => toggleSelection("todoIds", todo.id)}
                     />
                   ))}
                 </div>
@@ -439,13 +426,7 @@ function ProjectForm({
                       상세 페이지에서 함께 보여줄 일정을 선택할 수 있습니다.
                     </p>
                   </div>
-                  <span
-                    className="rounded-full px-3 py-1 text-sm font-semibold"
-                    style={{
-                      backgroundColor: currentTheme.accentSoft,
-                      color: currentTheme.accentStrong,
-                    }}
-                  >
+                  <span className="inline-flex min-w-[96px] items-center justify-center whitespace-nowrap rounded-full bg-[#454545] px-4 py-1.5 text-xs font-semibold text-white sm:text-sm">
                     {formValues.scheduleIds.length}개 선택
                   </span>
                 </div>
@@ -459,7 +440,7 @@ function ProjectForm({
                       meta={`${schedule.date} · ${schedule.timeLabel}`}
                       accentColor={currentTheme.accent}
                       onToggle={() =>
-                        toggleSelection('scheduleIds', schedule.id)
+                        toggleSelection("scheduleIds", schedule.id)
                       }
                     />
                   ))}
@@ -478,10 +459,9 @@ function ProjectForm({
             </button>
             <button
               type="submit"
-              className="rounded-[22px] px-6 py-4 text-base font-semibold text-white transition hover:brightness-95"
-              style={{ backgroundColor: currentTheme.accent }}
+              className="rounded-[22px] bg-[#454545] px-6 py-4 text-base font-semibold text-white transition hover:bg-[#363636]"
             >
-              {mode === 'edit' ? '저장하기' : '프로젝트 생성'}
+              {mode === "edit" ? "저장하기" : "프로젝트 생성"}
             </button>
           </div>
         </form>
