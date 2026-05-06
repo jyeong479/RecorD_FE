@@ -1,20 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 
 const EXPORT_FORMATS = [
   {
-    key: 'txt',
-    label: 'TXT',
-    description: '문서 제출용으로 가장 단순한 텍스트 파일',
+    key: "txt",
+    label: "TXT",
+    description: "문서 제출용으로 가장 단순한 텍스트 파일",
   },
   {
-    key: 'md',
-    label: 'Markdown',
-    description: '노션, GitHub, 블로그 초안으로 옮기기 쉬운 형식',
+    key: "md",
+    label: "Markdown",
+    description: "노션, GitHub, 블로그 초안으로 옮기기 쉬운 형식",
   },
   {
-    key: 'json',
-    label: 'JSON',
-    description: '추후 API나 자동화 파이프라인에 연결하기 좋은 구조',
+    key: "json",
+    label: "JSON",
+    description: "추후 API나 자동화 파이프라인에 연결하기 좋은 구조",
   },
 ];
 
@@ -45,7 +45,7 @@ function DownloadIcon() {
 
 function normalizeActionValue(action) {
   if (Array.isArray(action)) {
-    return action.map((item, index) => `${index + 1}. ${item}`).join('\n');
+    return action.map((item, index) => `${index + 1}. ${item}`).join("\n");
   }
 
   return action;
@@ -68,42 +68,42 @@ function buildTextContent(payload) {
   return [
     `${payload.projectName} · ${payload.title}`,
     `작성일: ${payload.createdAt}`,
-    `역량 키워드: ${payload.keywords.join(', ')}`,
-    '',
-    '[Situation]',
+    `역량 키워드: ${payload.keywords.join(", ")}`,
+    "",
+    "[Situation]",
     payload.situation,
-    '',
-    '[Task]',
+    "",
+    "[Task]",
     payload.task,
-    '',
-    '[Action]',
+    "",
+    "[Action]",
     payload.action,
-    '',
-    '[Result]',
+    "",
+    "[Result]",
     payload.result,
-  ].join('\n');
+  ].join("\n");
 }
 
 function buildMarkdownContent(payload) {
   return [
     `# ${payload.title}`,
-    '',
+    "",
     `- 프로젝트: ${payload.projectName}`,
     `- 작성일: ${payload.createdAt}`,
-    `- 역량 키워드: ${payload.keywords.join(', ')}`,
-    '',
-    '## Situation',
+    `- 역량 키워드: ${payload.keywords.join(", ")}`,
+    "",
+    "## Situation",
     payload.situation,
-    '',
-    '## Task',
+    "",
+    "## Task",
     payload.task,
-    '',
-    '## Action',
+    "",
+    "## Action",
     payload.action,
-    '',
-    '## Result',
+    "",
+    "## Result",
     payload.result,
-  ].join('\n');
+  ].join("\n");
 }
 
 function buildJsonContent(payload) {
@@ -111,11 +111,11 @@ function buildJsonContent(payload) {
 }
 
 function getFileContent(formatKey, payload) {
-  if (formatKey === 'md') {
+  if (formatKey === "md") {
     return buildMarkdownContent(payload);
   }
 
-  if (formatKey === 'json') {
+  if (formatKey === "json") {
     return buildJsonContent(payload);
   }
 
@@ -123,19 +123,19 @@ function getFileContent(formatKey, payload) {
 }
 
 function getMimeType(formatKey) {
-  if (formatKey === 'md') {
-    return 'text/markdown;charset=utf-8';
+  if (formatKey === "md") {
+    return "text/markdown;charset=utf-8";
   }
 
-  if (formatKey === 'json') {
-    return 'application/json;charset=utf-8';
+  if (formatKey === "json") {
+    return "application/json;charset=utf-8";
   }
 
-  return 'text/plain;charset=utf-8';
+  return "text/plain;charset=utf-8";
 }
 
 function PortfolioExport({ portfolio, projectName, onClose }) {
-  const [selectedFormat, setSelectedFormat] = useState('txt');
+  const [selectedFormat, setSelectedFormat] = useState("txt");
 
   const exportPayload = useMemo(
     () => buildExportPayload(portfolio, projectName),
@@ -152,10 +152,10 @@ function PortfolioExport({ portfolio, projectName, onClose }) {
       type: getMimeType(selectedFormat),
     });
     const downloadUrl = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
+    const anchor = document.createElement("a");
 
     anchor.href = downloadUrl;
-    anchor.download = `${portfolio.title.replace(/\s+/g, '_')}.${selectedFormat}`;
+    anchor.download = `${portfolio.title.replace(/\s+/g, "_")}.${selectedFormat}`;
     anchor.click();
     URL.revokeObjectURL(downloadUrl);
     onClose();
@@ -173,17 +173,13 @@ function PortfolioExport({ portfolio, projectName, onClose }) {
           <XIcon />
         </button>
 
-        <div className="max-w-2xl">
+        <div className="max-w-none pr-20">
           <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-4 py-1 text-sm font-semibold text-slate-500">
             Portfolio Export
           </span>
-          <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-900 sm:text-[2.2rem]">
-            STAR 포트폴리오를 원하는 형식으로 내보내세요
+          <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-900 sm:text-[2.2rem] lg:whitespace-nowrap">
+            STAR 포트폴리오를 원하는 형식으로 내보내기
           </h2>
-          <p className="mt-3 text-base leading-7 text-slate-500">
-            실제 AI 생성 결과를 텍스트, Markdown, 구조화 데이터 형태로 바로
-            저장할 수 있도록 UI를 미리 준비했습니다.
-          </p>
         </div>
 
         <div className="mt-8 grid gap-8 xl:grid-cols-[340px_minmax(0,1fr)]">
@@ -198,8 +194,8 @@ function PortfolioExport({ portfolio, projectName, onClose }) {
                   onClick={() => setSelectedFormat(format.key)}
                   className={`w-full rounded-[26px] border px-5 py-5 text-left transition ${
                     isSelected
-                      ? 'border-slate-900 bg-slate-50 shadow-sm'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                      ? "border-slate-900 bg-slate-50 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   <p className="text-lg font-bold text-slate-900">
@@ -245,7 +241,7 @@ function PortfolioExport({ portfolio, projectName, onClose }) {
           <button
             type="button"
             onClick={handleDownload}
-            className="inline-flex items-center justify-center gap-2 rounded-[22px] bg-[#7da5ee] px-6 py-4 text-base font-semibold text-white transition hover:brightness-95"
+            className="inline-flex items-center justify-center gap-2 rounded-[22px] bg-[#454545] px-6 py-4 text-base font-semibold text-white transition hover:bg-[#363636]"
           >
             <DownloadIcon />
             내보내기
