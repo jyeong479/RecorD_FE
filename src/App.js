@@ -5,6 +5,7 @@ import CalendarPage from './pages/Calendar/CalendarPage';
 import DashboardPage from './pages/MainShell/DashboardPage';
 import MainShell from './pages/MainShell/MainShell';
 import PlaceholderPage from './pages/MainShell/PlaceholderPage';
+import ProjectPage from './pages/Project/ProjectPage';
 
 function App() {
   return (
@@ -22,15 +23,7 @@ function App() {
             }
           />
           <Route path="calendar" element={<CalendarPage />} />
-          <Route
-            path="projects"
-            element={
-              <PlaceholderPage
-                title="프로젝트"
-                description="프로젝트 현황과 일정, 진행 상태를 한곳에서 볼 수 있도록 준비 중입니다."
-              />
-            }
-          />
+          <Route path="projects" element={<ProjectPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route
