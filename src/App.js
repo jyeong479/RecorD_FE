@@ -6,6 +6,7 @@ import MainShell from './pages/MainShell/MainShell';
 import DashboardPage from './pages/MainShell/DashboardPage';
 import PlaceholderPage from './pages/MainShell/PlaceholderPage';
 import MeetingNotesPage from './pages/MeetingNotes/MeetingNotesPage';
+import ProjectPage from './pages/Project/ProjectPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               />
             }
           />
+          <Route path="projects" element={<ProjectPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route
