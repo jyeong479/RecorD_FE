@@ -161,7 +161,7 @@ function SummaryResult({
     <div className="space-y-6">
       <section className="overflow-hidden rounded-[28px] border border-[#b6e6dc] bg-gradient-to-r from-[#e8faf7] via-[#effaf4] to-[#f4fbdd] shadow-sm">
         <div className="px-6 py-5">
-          <h2 className="text-[1.9rem] font-black tracking-tight text-slate-900">
+          <h2 className="text-[1.85rem] font-black tracking-tight text-slate-900">
             AI 요약
           </h2>
           <p className="mt-4 whitespace-pre-line text-lg leading-9 text-slate-800">

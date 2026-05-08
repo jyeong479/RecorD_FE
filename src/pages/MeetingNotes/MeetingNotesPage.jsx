@@ -369,9 +369,9 @@ function ModalShell({
       ? "max-w-[460px]"
       : size === "md"
         ? "max-w-[520px]"
-      : size === "xl"
-        ? "max-w-[980px]"
-        : "max-w-[760px]";
+        : size === "xl"
+          ? "max-w-[980px]"
+          : "max-w-[760px]";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 py-6">
@@ -927,7 +927,7 @@ function MeetingNotesDetail({
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h1 className="text-[2.6rem] font-black tracking-tight text-[#172554]">
+            <h1 className="text-[1.95rem] font-black tracking-tight text-[#172554]">
               {meetingNote.title}
             </h1>
             <p className="mt-4 text-lg text-slate-400">
