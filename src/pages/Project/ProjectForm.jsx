@@ -159,11 +159,6 @@ function ProjectForm({
       return;
     }
 
-    if (formValues.meetingIds.length === 0 && formValues.todoIds.length === 0) {
-      setErrorMessage("최소 1개 이상의 회의록 또는 할 일을 연결해주세요.");
-      return;
-    }
-
     setErrorMessage("");
 
     onSubmit({
