@@ -7,7 +7,23 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {
+  clearAuthStorage,
+  fetchCurrentUserProfile,
+  getAccessToken,
+  requestKakaoLogin,
+  storeAuthResponse,
+} from '../../utils/auth';
+
+const kakaoLoginRequests = new Map();
+
+const requestKakaoLoginOnce = ({ code, redirectUri }) => {
+  if (!kakaoLoginRequests.has(code)) {
+    kakaoLoginRequests.set(code, requestKakaoLogin({ code, redirectUri }));
+  }
+
+  return kakaoLoginRequests.get(code);
+};
 
 const KakaoCallback = () => {
   const navigate = useNavigate();
@@ -15,39 +31,40 @@ const KakaoCallback = () => {
   useEffect(() => {
     // 1. URL에서 인가 코드(code) 추출
     const code = new URL(window.location.href).searchParams.get('code');
-    const redirect_uri = process.env.REACT_APP_KAKAO_REDIRECT_URI;
+    const redirectUri = process.env.REACT_APP_KAKAO_REDIRECT_URI;
 
     if (code) {
       // 2. 백엔드 API 요청 (POST /api/auth/kakao/)
-      axios.post('http://localhost:8080/api/auth/kakao/', {
-        code: code,
-        redirect_uri: redirect_uri
-      })
-        .then((res) => {
-          console.log('로그인 성공 응답 데이터:', res.data);
-          
-          /* * [중요] 백엔드 Swagger 명세서 구조 반영
-           * res.data.access -> 서비스 접근용 토큰 (token으로 저장)
-           * res.data.refresh -> 토큰 갱신 및 로그아웃용 토큰 (refreshToken으로 저장)
-           */
-          localStorage.setItem('token', res.data.access);
-          localStorage.setItem('refreshToken', res.data.refresh);
+      requestKakaoLoginOnce({ code, redirectUri })
+        .then((data) => {
+          const { accessToken } = storeAuthResponse(data);
+
+          if (!accessToken) {
+            throw new Error('로그인 응답에 access token이 없습니다.');
+          }
+
+          fetchCurrentUserProfile().catch((profileError) => {
+            console.error('로그인 후 프로필 조회 실패:', profileError);
+          });
           
           // 로그인 성공 시 메인 페이지로 이동
           navigate('/');
         })
         .catch((err) => {
-          console.error('백엔드 연동 에러:', err);
-          
-          // --- 프론트엔드 테스트용 강제 로그인 처리 로직 ---
-          // 실제 백엔드가 구동되지 않을 때 흐름을 보기 위한 코드
-          alert('백엔드 미배포 상태입니다. 테스트를 위해 임시 토큰을 생성하여 메인으로 이동합니다.');
-          
-          localStorage.setItem('token', 'test-access-token');
-          localStorage.setItem('refreshToken', 'test-refresh-token');
-          
-          navigate('/');
-          // ------------------------------------------------
+          console.error('백엔드 연동 에러:', {
+            message: err.message,
+            status: err.response?.status,
+            data: err.response?.data,
+          });
+
+          if (getAccessToken()) {
+            navigate('/');
+            return;
+          }
+
+          clearAuthStorage();
+          alert('로그인 처리에 실패했습니다. 다시 시도해주세요.');
+          navigate('/login');
         });
     } else {
       // 인가 코드가 없는 경우 로그인 페이지로 리다이렉트

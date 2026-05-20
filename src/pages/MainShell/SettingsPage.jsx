@@ -1,30 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {
+  clearAuthStorage,
+  fetchCurrentUserProfile,
+  getStoredProfile,
+  logoutFromServer,
+  updateCurrentUserProfile,
+  withdrawFromServer,
+} from '../../utils/auth';
 
 function SettingsPage() {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState({
-    name: '',
-    email: ''
-  });
+  const [profile, setProfile] = useState(() => getStoredProfile());
 
   // 1. [GET] 내 프로필 조회
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8080/api/auth/profile/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      
-        // 백엔드 응답 스키마(name, email) 매핑
-        setProfile({
-          name: response.data.name || '',
-          email: response.data.email || ''
-        });
+        const currentProfile = await fetchCurrentUserProfile();
+        setProfile(currentProfile);
       } catch (error) {
         console.error('프로필 정보를 불러오지 못했습니다.', error);
+        setProfile(getStoredProfile());
       }
     };
 
@@ -34,13 +31,9 @@ function SettingsPage() {
   // 2. [PATCH] 내 프로필 수정
   const handleUpdateProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
-      // 백엔드 요청 바디에 맞춰 { name: "수정할 이름" } 전송
-      await axios.patch('http://localhost:8080/api/auth/profile/',
-        { name: profile.name },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert('프로필이 성공적으로 저장되었습니다.');
+      const updatedProfile = await updateCurrentUserProfile(profile);
+      setProfile(updatedProfile);
+      alert('프로필이 성공적으로 저장되었습니다.\n새로고침 시 최신 정보가 반영됩니다.');
     } catch (error) {
       console.error('프로필 수정 실패:', error);
       alert('프로필 저장에 실패했습니다. 다시 시도해주세요.');
@@ -51,30 +44,28 @@ function SettingsPage() {
   const handleLogout = async () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
       try {
-        const token = localStorage.getItem('token');
-        const refreshToken = localStorage.getItem('refreshToken'); // 로컬에서 리프레시 토큰 꺼내기
-      
-        // 백엔드 로그아웃 API에 리프레시 토큰 전달
-        if (refreshToken) {
-          await axios.post('http://localhost:8080/api/auth/logout/',
-            { refresh: refreshToken },
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-        }
+        await logoutFromServer();
       } catch (error) {
         console.error('서버 로그아웃 처리 실패 (무시하고 로컬 로그아웃 진행)', error);
       } finally {
         // 성공하든 실패하든 브라우저의 토큰을 모두 지우고 로그인 화면으로 이동
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
+        clearAuthStorage();
         navigate('/login');
       }
     }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (window.confirm('정말 탈퇴하시겠습니까? 모든 데이터가 삭제되며 복구할 수 없습니다.')) {
-      alert('회원 탈퇴 기능은 현재 백엔드 API 준비 중입니다.');
+      try {
+        await withdrawFromServer();
+        clearAuthStorage();
+        alert('회원 탈퇴가 완료되었습니다.');
+        navigate('/login');
+      } catch (error) {
+        console.error('회원 탈퇴 실패:', error);
+        alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 
@@ -129,7 +120,7 @@ function SettingsPage() {
               <input
                 type="email"
                 readOnly
-                value={profile.email || "student@kakao.com"}
+                value={profile.email || '이메일 정보 없음'}
                 className="w-full bg-transparent text-[15px] font-medium text-slate-500 focus:outline-none cursor-not-allowed"
               />
             </div>

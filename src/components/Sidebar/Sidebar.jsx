@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { fetchCurrentUserProfile, getStoredProfile } from '../../utils/auth';
 
 const sidebarItems = [
   { label: '대시보드', icon: DashboardIcon, to: '/', end: true },
@@ -74,25 +74,31 @@ function GearIcon() {
 
 function UserProfileCard() {
   const navigate = useNavigate();
-  const [user, setUser] = useState({ name: '로드 중...', email: '' });
+  const [user, setUser] = useState(() => {
+    const storedProfile = getStoredProfile();
+    return storedProfile.name || storedProfile.email
+      ? storedProfile
+      : { name: '프로필 확인 중', email: '' };
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+        const profile = await fetchCurrentUserProfile();
 
-        const response = await axios.get('http://localhost:8080/api/auth/profile/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        setUser({
-          name: response.data.name,
-          email: response.data.email
-        });
+        setUser(
+          profile.name || profile.email
+            ? profile
+            : { name: '사용자', email: '이메일 정보 없음' }
+        );
       } catch (error) {
         console.error('사이드바 사용자 정보 로드 실패:', error);
-        setUser({ name: '로그인 필요', email: '세션이 만료되었습니다' });
+        const storedProfile = getStoredProfile();
+        setUser(
+          storedProfile.name || storedProfile.email
+            ? storedProfile
+            : { name: '사용자', email: '프로필 정보를 불러오지 못했습니다' }
+        );
       }
     };
 
