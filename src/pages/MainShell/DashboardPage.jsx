@@ -4,6 +4,7 @@ import axios from 'axios';
 import { getAccessToken, getApiBaseUrl } from '../../utils/auth';
 
 const API_BASE_URL = getApiBaseUrl();
+const DASHBOARD_TODO_LIMIT = 4;
 
 const formatDateKey = (date) => {
   const year = date.getFullYear();
@@ -29,6 +30,79 @@ const getScheduleTypeLabel = (type) => {
   };
 
   return typeLabels[type] || '일정';
+};
+
+const buildDashboardTask = (todo) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dueDate = new Date(`${todo.due_date}T00:00:00`);
+  dueDate.setHours(0, 0, 0, 0);
+
+  const diffTime = dueDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  let badge = '';
+  let badgeType = '';
+
+  if (diffDays < 0) {
+    badge = '지남';
+    badgeType = 'default';
+  } else if (diffDays === 0) {
+    badge = 'D-Day';
+    badgeType = 'danger';
+  } else {
+    badge = `D-${diffDays}`;
+    badgeType = 'primary';
+  }
+
+  return {
+    id: todo.id,
+    title: todo.title,
+    date: todo.due_date,
+    isDone: todo.status === 'done',
+    status: todo.status,
+    badge,
+    badgeType,
+  };
+};
+
+const sortTasksByCompletion = (tasks) =>
+  [...tasks].sort((a, b) => Number(a.isDone) - Number(b.isDone));
+
+const fetchTodosByStatus = async ({ headers, todayKey, status, pageSize }) => {
+  const response = await axios.get(`${API_BASE_URL}/api/todos/`, {
+    headers,
+    params: {
+      due_date: todayKey,
+      status,
+      ordering: 'due_date',
+      page_size: pageSize,
+    },
+  });
+
+  return response.data.results.map(buildDashboardTask);
+};
+
+const fetchDashboardTasks = async (headers, todayKey) => {
+  const inProgressTasks = await fetchTodosByStatus({
+    headers,
+    todayKey,
+    status: 'in_progress',
+    pageSize: DASHBOARD_TODO_LIMIT,
+  });
+  const remainingCount = DASHBOARD_TODO_LIMIT - inProgressTasks.length;
+  const doneTasks =
+    remainingCount > 0
+      ? await fetchTodosByStatus({
+          headers,
+          todayKey,
+          status: 'done',
+          pageSize: remainingCount,
+        })
+      : [];
+
+  return [...inProgressTasks, ...doneTasks];
 };
 
 function DashboardPage() {
@@ -106,50 +180,8 @@ function DashboardPage() {
       }
 
       try {
-        const todoRes = await axios.get(`${API_BASE_URL}/api/todos/`, {
-          headers,
-          params: {
-            due_date: todayKey,
-            ordering: 'status,due_date',
-            page_size: 4,
-          },
-        });
-        const todoData = todoRes.data.results.map((t) => {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const dueDate = new Date(t.due_date);
-          dueDate.setHours(0, 0, 0, 0);
-
-          const diffTime = dueDate.getTime() - today.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-          let badge = '';
-          let badgeType = '';
-
-          if (diffDays < 0) {
-            badge = '지남';
-            badgeType = 'default';
-          } else if (diffDays === 0) {
-            badge = 'D-Day';
-            badgeType = 'danger';
-          } else {
-            badge = `D-${diffDays}`;
-            badgeType = 'primary';
-          }
-
-          return {
-            id: t.id,
-            title: t.title,
-            date: t.due_date,
-            isDone: t.status === 'done',
-            status: t.status,
-            badge: badge,
-            badgeType: badgeType,
-          };
-        });
-
-        const sortedTodoData = todoData.sort((a, b) => Number(a.isDone) - Number(b.isDone));
-        setTasks(sortedTodoData);
+        const dashboardTasks = await fetchDashboardTasks(headers, todayKey);
+        setTasks(dashboardTasks);
       } catch (error) {
         console.error('오늘 할 일 데이터를 불러오는데 실패했습니다.', error);
         setTasks([]);
@@ -169,15 +201,19 @@ function DashboardPage() {
       const updatedTasks = prevTasks.map(task => 
         task.id === id ? { ...task, isDone: !task.isDone, status: newStatus } : task
       );
-      return updatedTasks.sort((a, b) => Number(a.isDone) - Number(b.isDone));
+      return sortTasksByCompletion(updatedTasks);
     });
 
     try {
       const token = getAccessToken();
+      const headers = { Authorization: `Bearer ${token}` };
       await axios.patch(`${API_BASE_URL}/api/todos/${id}/`,
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers }
       );
+
+      const refreshedTasks = await fetchDashboardTasks(headers, formatDateKey(new Date()));
+      setTasks(refreshedTasks);
     } catch (error) {
       console.error('할 일 상태 업데이트 실패', error);
 
@@ -188,7 +224,7 @@ function DashboardPage() {
             ? { ...task, isDone: targetTask.isDone, status: targetTask.status }
             : task
         );
-        return rolledBackTasks.sort((a, b) => Number(a.isDone) - Number(b.isDone));
+        return sortTasksByCompletion(rolledBackTasks);
       });
     }
   };
