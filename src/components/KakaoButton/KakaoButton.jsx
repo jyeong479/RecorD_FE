@@ -18,9 +18,17 @@ const KakaoButton = () => {
   return (
     <button 
       onClick={handleLogin}
-      className="flex items-center justify-center w-full py-3 mt-4 text-[#000000] bg-[#FEE500] rounded-md font-semibold hover:bg-[#e6cf00] transition-colors duration-200"
+      className="relative flex w-full items-center justify-center rounded-xl bg-[#FEE500] px-4 py-4 text-[15px] font-semibold text-[#000000] shadow-sm transition-colors duration-200 hover:bg-[#FADA0A] focus:outline-none focus:ring-2 focus:ring-[#FEE500] focus:ring-offset-2"
     >
-      카카오로 시작하기
+      {/* 카카오 공식 심볼 아이콘 (SVG) */}
+      <svg 
+        className="absolute left-6 h-5 w-5" 
+        viewBox="0 0 32 32" 
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path fill="#000000" d="M16 4.64c-6.96 0-12.64 4.48-12.64 10.08 0 3.52 2.32 6.64 5.76 8.48l-1.44 5.44c-.16.56.48.96.96.64l6.24-4.24c.4.08.8.08 1.12.08 6.96 0 12.64-4.48 12.64-10.08S22.96 4.64 16 4.64z"/>
+      </svg>
+      카카오 로그인
     </button>
   );
 };

@@ -1,4 +1,6 @@
-import { Link, NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { fetchCurrentUserProfile, getStoredProfile } from '../../utils/auth';
 
 const sidebarItems = [
   { label: '대시보드', icon: DashboardIcon, to: '/', end: true },
@@ -21,10 +23,7 @@ function SidebarIconShell({ children, active }) {
 
 function DashboardIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
-    >
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
       <rect x="3" y="3" width="7" height="7" rx="1.5" />
       <rect x="14" y="3" width="7" height="5" rx="1.5" />
       <rect x="14" y="12" width="7" height="9" rx="1.5" />
@@ -35,10 +34,7 @@ function DashboardIcon() {
 
 function DocumentIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
-    >
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
       <path d="M7 3.75h6.5L19.25 9.5V19A2.25 2.25 0 0 1 17 21.25H7A2.25 2.25 0 0 1 4.75 19V6A2.25 2.25 0 0 1 7 3.75Z" />
       <path d="M13 3.75V9.5h5.75" />
       <path d="M8.5 13h7" />
@@ -49,10 +45,7 @@ function DocumentIcon() {
 
 function CalendarIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
-    >
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
       <rect x="3.75" y="5.75" width="16.5" height="14.5" rx="2.5" />
       <path d="M8 3.75v4" />
       <path d="M16 3.75v4" />
@@ -63,10 +56,7 @@ function CalendarIcon() {
 
 function FolderIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
-    >
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
       <path d="M4 7.25A2.25 2.25 0 0 1 6.25 5h3.5l1.7 1.75H17.75A2.25 2.25 0 0 1 20 9v8.75A2.25 2.25 0 0 1 17.75 20H6.25A2.25 2.25 0 0 1 4 17.75V7.25Z" />
       <path d="M4 9.75h16" />
     </svg>
@@ -75,10 +65,7 @@ function FolderIcon() {
 
 function GearIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
-    >
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
       <path d="M10.1 4.25h3.8l.5 2.08a6.31 6.31 0 0 1 1.62.94l1.97-.79 1.9 3.28-1.46 1.48c.09.5.14 1 .14 1.51s-.05 1.01-.14 1.51l1.46 1.48-1.9 3.28-1.97-.79c-.5.38-1.05.7-1.62.94l-.5 2.08h-3.8l-.5-2.08a6.31 6.31 0 0 1-1.62-.94l-1.97.79-1.9-3.28 1.46-1.48a8.4 8.4 0 0 1-.14-1.51c0-.51.05-1.01.14-1.51L4.5 9.76l1.9-3.28 1.97.79c.5-.38 1.05-.7 1.62-.94l.5-2.08Z" />
       <circle cx="12" cy="12" r="2.6" />
     </svg>
@@ -86,24 +73,57 @@ function GearIcon() {
 }
 
 function UserProfileCard() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(() => {
+    const storedProfile = getStoredProfile();
+    return storedProfile.name || storedProfile.email
+      ? storedProfile
+      : { name: '프로필 확인 중', email: '' };
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const profile = await fetchCurrentUserProfile();
+
+        setUser(
+          profile.name || profile.email
+            ? profile
+            : { name: '사용자', email: '이메일 정보 없음' }
+        );
+      } catch (error) {
+        console.error('사이드바 사용자 정보 로드 실패:', error);
+        const storedProfile = getStoredProfile();
+        setUser(
+          storedProfile.name || storedProfile.email
+            ? storedProfile
+            : { name: '사용자', email: '프로필 정보를 불러오지 못했습니다' }
+        );
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   return (
-    <Link
-      to="/login"
-      className="flex items-center gap-4 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-[#767676] hover:bg-white"
-    >
+    <div className="flex items-center gap-4 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-slate-400 hover:bg-white group">
+      {/* 프로필 이미지 (이름 첫 글자 추출) */}
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#3A3A3A] text-lg font-semibold text-white">
-        K
+        {user.name ? user.name.charAt(0) : 'U'}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-base font-semibold text-slate-900">로그인 해주세요</p>
-        <p className="truncate text-sm text-slate-500">
-          카카오 로그인 페이지로 이동합니다
-        </p>
+        <p className="text-base font-semibold text-slate-900 truncate">{user.name}</p>
+        <p className="truncate text-sm text-slate-400">{user.email}</p>
       </div>
-      <span className="rounded-full bg-white p-2 text-slate-500 shadow-sm">
+      <button
+        type="button"
+        onClick={() => navigate('/settings')}
+        className="rounded-full bg-white p-2 text-slate-400 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
+        aria-label="설정"
+      >
         <GearIcon />
-      </span>
-    </Link>
+      </button>
+    </div>
   );
 }
 
@@ -113,10 +133,7 @@ function Sidebar() {
       <div className="border-b border-slate-200 px-6 py-7">
         <Link to="/" className="flex items-center gap-4">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 via-white to-slate-200 shadow-sm ring-1 ring-slate-200">
-            <svg
-              viewBox="0 0 24 24"
-              className="h-7 w-7 fill-none stroke-[#1f2937] stroke-[1.8]"
-            >
+            <svg viewBox="0 0 24 24" className="h-7 w-7 fill-none stroke-[#1f2937] stroke-[1.8]">
               <path d="M4 17.5V8.25" />
               <path d="M8 17.5V11" />
               <path d="M12 17.5V6.5" />
@@ -126,9 +143,7 @@ function Sidebar() {
             </svg>
           </span>
           <div>
-            <p className="text-3xl font-black tracking-tight text-slate-900">
-              Recor-D
-            </p>
+            <p className="text-3xl font-black tracking-tight text-slate-900">Recor-D</p>
             <p className="text-sm text-slate-500">포트폴리오 관리</p>
           </div>
         </Link>
