@@ -42,6 +42,7 @@ function SummaryResult({
   actionItems = [],
   actionItemChecks = [],
   editable = false,
+  summaryTitle = "AI 요약",
   onSummaryChange,
   onKeyPointsChange,
   onActionItemChange,
@@ -64,24 +65,17 @@ function SummaryResult({
   if (editable) {
     return (
       <div className="space-y-6">
-        <div className="overflow-hidden rounded-[24px] border border-[#b6e6dc] bg-gradient-to-r from-[#e8faf7] via-[#effaf4] to-[#f4fbdd]">
-          <div className="border-b border-white/70 px-5 py-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#67b6a7]">
-              AI Summary
-            </p>
-            <h3 className="mt-2 text-[1.7rem] font-black tracking-tight text-slate-900">
-              AI 요약
-            </h3>
-          </div>
-          <div className="px-5 py-5">
-            <textarea
-              value={summary}
-              onChange={(event) => onSummaryChange?.(event.target.value)}
-              rows={5}
-              placeholder="회의 요약 내용을 입력해주세요."
-              className="w-full rounded-[20px] border border-white/80 bg-white/75 px-4 py-4 text-base leading-7 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#67b6a7] focus:bg-white focus:ring-4 focus:ring-white/70"
-            />
-          </div>
+        <div>
+          <label className="mb-3 block text-sm font-semibold text-slate-800">
+            {summaryTitle}
+          </label>
+          <textarea
+            value={summary}
+            onChange={(event) => onSummaryChange?.(event.target.value)}
+            rows={5}
+            placeholder="회의 요약 내용을 입력해주세요."
+            className="w-full rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 text-base text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#67b6a7] focus:bg-white focus:ring-4 focus:ring-[#d8f2eb]"
+          />
         </div>
 
         <div className="grid gap-5 lg:grid-cols-2">

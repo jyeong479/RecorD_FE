@@ -613,6 +613,7 @@ function MeetingNoteFormDialog({
 
         <SummaryResult
           editable
+          summaryTitle="요약"
           summary={values.summary}
           keyPoints={values.keyPointsText}
           actionItems={values.actionItems}
