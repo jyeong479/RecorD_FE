@@ -460,6 +460,7 @@ function CalendarPage() {
     () => todos.filter((todo) => isSameMonth(todo.date, currentMonth)),
     [currentMonth, todos],
   );
+  const todoReferenceDate = selectedDate ?? today;
 
   const visibleEvents = useMemo(() => {
     const filteredEvents =
@@ -479,7 +480,7 @@ function CalendarPage() {
       }
 
       if (todoViewMode === "today") {
-        return isSameDay(todo.date, today);
+        return isSameDay(todo.date, todoReferenceDate);
       }
 
       return true;
@@ -488,12 +489,14 @@ function CalendarPage() {
     return todoSortMode === "dueDate"
       ? sortTodosByDateAndPriority(filteredTodos)
       : sortTodosByPriorityAndDate(filteredTodos);
-  }, [todoSortMode, todoViewMode, today, todos]);
+  }, [todoReferenceDate, todoSortMode, todoViewMode, todos]);
 
   const completedTodos = useMemo(
     () =>
       [...todos]
-        .filter((todo) => todo.completed && isSameDay(todo.date, today))
+        .filter(
+          (todo) => todo.completed && isSameDay(todo.date, todoReferenceDate),
+        )
         .sort((firstTodo, secondTodo) => {
           const firstTime =
             firstTodo.completedAt?.getTime() ?? firstTodo.date.getTime();
@@ -502,7 +505,7 @@ function CalendarPage() {
 
           return secondTime - firstTime;
         }),
-    [today, todos],
+    [todoReferenceDate, todos],
   );
 
   const selectedEvent =
@@ -772,7 +775,9 @@ function CalendarPage() {
       : "등록된 일정이 없습니다.";
   const todoEmptyMessage =
     todoViewMode === "today"
-      ? "오늘 할 일이 없습니다."
+      ? isSameDay(todoReferenceDate, today)
+        ? "오늘 할 일이 없습니다."
+        : "선택한 날짜의 할 일이 없습니다."
       : "진행 중인 할 일이 없습니다.";
 
   return (
@@ -1085,10 +1090,10 @@ function CalendarPage() {
                             <span
                               className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${getTodoBadgeToneClassName(
                                 todo.date,
-                                today,
+                                todoReferenceDate,
                               )}`}
                             >
-                              {getTodoBadgeLabel(todo.date, today)}
+                              {getTodoBadgeLabel(todo.date, todoReferenceDate)}
                             </span>
                             <button
                               type="button"
