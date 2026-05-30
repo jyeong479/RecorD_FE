@@ -33,6 +33,9 @@ const AUTH_CONTAINER_KEYS = [
   "login",
 ];
 
+const DEFAULT_API_TIMEOUT_MS = 20000;
+export const LONG_RUNNING_API_TIMEOUT_MS = 300000;
+
 function getApiBaseUrl() {
   return (
     process.env.REACT_APP_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL
@@ -225,7 +228,7 @@ async function refreshAccessToken() {
       `${getApiBaseUrl()}/api/auth/token/refresh/`,
       { refresh: refreshToken },
       {
-        timeout: 20000,
+        timeout: DEFAULT_API_TIMEOUT_MS,
       },
     )
     .then((response) => {
@@ -267,7 +270,7 @@ async function refreshAccessToken() {
 
 export const apiClient = axios.create({
   baseURL: getApiBaseUrl(),
-  timeout: 20000,
+  timeout: DEFAULT_API_TIMEOUT_MS,
 });
 
 apiClient.interceptors.request.use((config) => {

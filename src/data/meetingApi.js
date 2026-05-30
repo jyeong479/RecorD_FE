@@ -1,10 +1,11 @@
-import { apiClient, extractApiErrorMessage } from "./apiClient";
+import {
+  LONG_RUNNING_API_TIMEOUT_MS,
+  apiClient,
+  extractApiErrorMessage,
+} from "./apiClient";
 
 const MAX_AUDIO_FILE_SIZE = 50 * 1024 * 1024;
 const SUPPORTED_AUDIO_EXTENSIONS = ["mp3", "wav", "m4a"];
-const DRAFT_UPLOAD_FIELD_NAMES = ["file", "audio_file", "audio"];
-const LAST_DRAFT_UPLOAD_FIELD_NAME =
-  DRAFT_UPLOAD_FIELD_NAMES[DRAFT_UPLOAD_FIELD_NAMES.length - 1];
 const DEFAULT_DRAFT_DURATION_MINUTES = 40;
 const DEFAULT_AUDIO_DRAFT_DATE = () => new Date().toISOString().slice(0, 10);
 
@@ -309,12 +310,6 @@ function normalizeDraftResponse(responseData, fileName, projectName) {
   });
 }
 
-function shouldRetryDraftUpload(error) {
-  const statusCode = error?.response?.status;
-
-  return statusCode === 400 || statusCode === 415 || statusCode === 422;
-}
-
 export async function getMeetingNotes() {
   try {
     const meetingNotes = await getPaginatedResults("/api/meetings/", {
@@ -417,41 +412,31 @@ export async function generateMeetingDraftFromAudio(file, project) {
     throw new Error(validationMessage);
   }
 
-  let latestError = null;
+  const projectName = toTrimmedString(project);
+  const payload = {
+    file,
+  };
 
-  for (const fieldName of DRAFT_UPLOAD_FIELD_NAMES) {
-    const formData = new FormData();
-    formData.append(fieldName, file);
-
-    if (toTrimmedString(project)) {
-      formData.append("project", toTrimmedString(project));
-    }
-
-    try {
-      const response = await apiClient.post(
-        "/api/meetings/draft-from-audio/",
-        formData,
-      );
-
-      return normalizeDraftResponse(response.data, file.name, project);
-    } catch (error) {
-      latestError = error;
-
-      if (
-        !shouldRetryDraftUpload(error) ||
-        fieldName === LAST_DRAFT_UPLOAD_FIELD_NAME
-      ) {
-        break;
-      }
-    }
+  if (projectName) {
+    payload.project = projectName;
   }
 
-  throw new Error(
-    extractApiErrorMessage(
-      latestError,
-      "Failed to generate a meeting draft from the audio file.",
-    ),
-  );
+  try {
+    const response = await apiClient.postForm(
+      "/api/meetings/draft-from-audio/",
+      payload,
+      { timeout: LONG_RUNNING_API_TIMEOUT_MS },
+    );
+
+    return normalizeDraftResponse(response.data, file.name, projectName);
+  } catch (error) {
+    throw new Error(
+      extractApiErrorMessage(
+        error,
+        "녹음 파일로 회의록 초안을 생성하지 못했습니다.",
+      ),
+    );
+  }
 }
 
 export { MAX_AUDIO_FILE_SIZE, SUPPORTED_AUDIO_EXTENSIONS };
